@@ -1,0 +1,123 @@
+"""Loader tests use FORMAT FIXTURES (random data in the published file layouts)."""
+
+import json
+import tempfile
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from causalforge.data.loaders.benchmarks import load_acic, load_ihdp, read_lalonde_frame
+from causalforge.data.loaders.criteo_stream import FEATURES, ingest, to_causal_dataset
+from causalforge.estimators.weighting import ipw_att
+from causalforge.experiments import runner
+from causalforge.experiments.tracking import track_run
+from causalforge.synthetic.generators import make_scm
+
+
+def test_ihdp_loader_truth_and_schema():
+    d = Path(tempfile.mkdtemp())
+    rng = np.random.default_rng(0)
+    n, R = 100, 2
+    x = rng.normal(size=(n, 25, R))
+    t = rng.binomial(1, 0.3, (n, R))
+    mu0 = x[:, 0, :]
+    mu1 = mu0 + 2
+    np.savez(d / "f.npz", x=x, t=t, yf=mu0, ycf=mu1, mu0=mu0, mu1=mu1)
+    ds = load_ihdp(d / "f.npz", 1)
+    assert ds.X.shape == (n, 25) and np.isclose(ds.true_ate, 2.0)
+    np.savez(d / "bad.npz", x=x)
+    try:
+        load_ihdp(d / "bad.npz")
+    except ValueError:
+        return
+    raise AssertionError("bad IHDP file accepted")
+
+
+def test_acic_loader_one_hot_and_truth():
+    d = Path(tempfile.mkdtemp())
+    rng = np.random.default_rng(0)
+    n = 80
+    X = pd.DataFrame({"x_1": rng.normal(size=n), "x_2": rng.choice(list("abc"), n)})
+    X.to_csv(d / "x.csv", index=False)
+    pd.DataFrame(
+        dict(
+            z=rng.binomial(1, 0.5, n),
+            y0=rng.normal(size=n),
+            y1=rng.normal(size=n) + 1,
+            mu0=np.zeros(n),
+            mu1=np.ones(n),
+        )
+    ).to_csv(d / "z.csv", index=False)
+    ds = load_acic(d / "x.csv", d / "z.csv")
+    assert ds.X.shape[1] == 3 and np.isclose(ds.true_ate, 1.0)
+
+
+def test_lalonde_race_column_handled_and_missing_columns_rejected():
+    d = Path(tempfile.mkdtemp())
+    df = pd.DataFrame(
+        dict(
+            treat=[1, 0],
+            age=[20, 30],
+            educ=[10, 12],
+            race=["black", "white"],
+            married=[0, 1],
+            nodegree=[1, 0],
+            re74=[0, 1],
+            re75=[0, 2],
+            re78=[5, 9],
+        )
+    )
+    df.to_csv(d / "l.csv", index=False)
+    out = read_lalonde_frame(d / "l.csv")
+    assert out.black.tolist() == [1, 0]
+    pd.DataFrame({"treat": [1]}).to_csv(d / "b.csv", index=False)
+    try:
+        read_lalonde_frame(d / "b.csv")
+    except ValueError:
+        return
+    raise AssertionError
+
+
+def test_criteo_ingest_excludes_exposure_and_counts_invalid_rows():
+    d = Path(tempfile.mkdtemp())
+    rng = np.random.default_rng(0)
+    n = 1200
+    df = pd.DataFrame(rng.normal(size=(n, 12)).astype("float32"), columns=FEATURES)
+    df["treatment"] = rng.binomial(1, 0.85, n)
+    df["conversion"] = 0
+    df["visit"] = rng.binomial(1, 0.05, n)
+    df["exposure"] = df.treatment * rng.binomial(1, 0.03, n)
+    df.loc[3, "treatment"] = 7  # invalid
+    df.to_csv(d / "c.csv.gz", index=False)
+    m = ingest(d / "c.csv.gz", d / "out", chunksize=500)
+    assert m["invalid_rows"] == 1 and m["rows"] == n - 1 and len(m["sha256"]) == 64
+    ds = to_causal_dataset(df[df.treatment.isin([0, 1])])
+    assert "exposure" not in ds.feature_names
+
+
+def test_ipw_att_close_to_truth_on_synthetic():
+    ds = make_scm(4000, 9, heterogeneous=False)
+    assert abs(ipw_att(ds).estimate - 1.0) < 0.2
+
+
+def test_tracking_writes_reproducibility_files():
+    root = tempfile.mkdtemp()
+    with track_run("t", {"seed": 1}, root=root) as run:
+        run.log_metric("rmse", 0.5)
+    d = next(Path(root).iterdir())
+    for f in (
+        "environment.json",
+        "params.json",
+        "git_commit.txt",
+        "dataset_manifest.json",
+        "metrics.json",
+    ):
+        assert (d / f).exists()
+    assert json.loads((d / "metrics.json").read_text())["rmse"] == 0.5
+
+
+def test_experiments_are_reproducible_from_seed():
+    a = runner.exp10_did(R=4, seed=7)
+    b = runner.exp10_did(R=4, seed=7)
+    assert a.equals(b)
