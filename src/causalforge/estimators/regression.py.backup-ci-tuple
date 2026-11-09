@@ -1,0 +1,48 @@
+"""Naive difference and regression adjustment (g-computation)."""
+from __future__ import annotations
+
+import numpy as np
+from sklearn.base import clone
+from sklearn.linear_model import LinearRegression
+
+from causalforge.core.types import EstimateResult, normal_ci
+
+
+def naive_ate(ds) -> EstimateResult:
+    """Unadjusted difference in means (NOT a causal estimate under confounding)."""
+    y1, y0 = ds.outcome[ds.treatment == 1], ds.outcome[ds.treatment == 0]
+    est = y1.mean() - y0.mean()
+    se = np.sqrt(y1.var(ddof=1) / len(y1) + y0.var(ddof=1) / len(y0))
+    return EstimateResult("naive", "ATE", float(est), float(se), normal_ci(est, se))
+
+
+def regression_adjustment(ds, model=None, estimand: str = "ATE", n_boot: int = 0,
+                          seed: int = 0) -> EstimateResult:
+    """E[mu1(X) - mu0(X)] with separate outcome models per arm.
+
+    estimand 'ATE' averages over all units, 'ATT' over treated units.
+    SE by nonparametric bootstrap over i.i.d. units when n_boot>0.
+    """
+    model = LinearRegression() if model is None else model
+
+    def point(X, t, y):
+        m1 = clone(model).fit(X[t == 1], y[t == 1])
+        m0 = clone(model).fit(X[t == 0], y[t == 0])
+        diff = m1.predict(X) - m0.predict(X)
+        return float(diff.mean() if estimand == "ATE" else diff[t == 1].mean())
+
+    X, t, y = ds.X, ds.treatment, ds.outcome
+    est = point(X, t, y)
+    if n_boot <= 0:
+        return EstimateResult("regression_adjustment", estimand, est)
+    rng = np.random.default_rng(seed)
+    boots = []
+    for _ in range(n_boot):
+        i = rng.integers(0, len(y), len(y))
+        if t[i].min() == t[i].max():
+            continue
+        boots.append(point(X[i], t[i], y[i]))
+    se = float(np.std(boots, ddof=1))
+    ci = tuple(float(q) for q in np.quantile(boots, [0.025, 0.975]))
+    return EstimateResult("regression_adjustment", estimand, est, se, ci,
+                          {"n_boot": len(boots)})
