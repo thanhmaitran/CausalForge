@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CausalForge — Experiment Results</title>
+<style>
+:root {
+  color-scheme: light;
+  --ink: #172033;
+  --muted: #64748b;
+  --line: #dce3ec;
+  --paper: #ffffff;
+  --canvas: #f3f6fa;
+  --accent: #3157a4;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: "Segoe UI", Arial, sans-serif;
+  line-height: 1.5;
+}
+main { max-width: 1440px; margin: 0 auto; padding: 38px 30px 60px; }
+.hero {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 30px 34px;
+  margin-bottom: 22px;
+}
+.eyebrow {
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+h1 { font-size: 34px; line-height: 1.15; margin: 9px 0 12px; }
+.subtitle { color: var(--muted); margin: 0; }
+.notice {
+  margin-top: 22px;
+  padding: 13px 16px;
+  background: #fff8e8;
+  border-left: 4px solid #d49a2a;
+  border-radius: 5px;
+  color: #624819;
+  font-size: 14px;
+}
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 18px 0 28px;
+}
+.metric {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 20px 22px;
+}
+.metric .value { font-size: 29px; font-weight: 700; }
+.metric .label { color: var(--muted); font-size: 13px; }
+.experiment {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 22px;
+  margin: 16px 0;
+}
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+h2 { font-size: 20px; margin: 0; }
+.filename { color: var(--muted); font-size: 12px; margin: 4px 0 14px; }
+.row-count {
+  color: var(--accent);
+  background: #edf2ff;
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+th, td {
+  padding: 9px 11px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  white-space: nowrap;
+}
+th {
+  background: #f1f4f9;
+  color: #334155;
+  font-weight: 700;
+}
+tbody tr:nth-child(even) { background: #fafbfd; }
+.empty { color: #8a5a13; background: #fff8e8; padding: 12px; border-radius: 6px; }
+pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: #f5f7fa;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 12px;
+}
+footer { color: var(--muted); font-size: 12px; margin-top: 28px; }
+@media (max-width: 700px) {
+  main { padding: 18px 12px 36px; }
+  .hero { padding: 22px; }
+  h1 { font-size: 27px; }
+  .metrics { grid-template-columns: 1fr; }
+}
+@media print {
+  body { background: white; }
+  main { max-width: none; padding: 10px; }
+  .experiment { break-inside: avoid; }
+}
+</style>
+</head>
+<body>
+<main>
+  <header class="hero">
+    <div class="eyebrow">Causal inference research engineering</div>
+    <h1>CausalForge Experiment Results</h1>
+    <p class="subtitle">Consolidated outputs from the project's experiment CSV files.</p>
+    <div class="notice">
+      <strong>Interpretation note:</strong> These results are from synthetic simulation
+      experiments. They demonstrate controlled experimental behaviour and are not
+      evidence of validation on real-world datasets.
+    </div>
+  </header>
+
+  <div class="metrics">
+    <div class="metric"><div class="value">15</div>
+      <div class="label">CSV experiment files</div></div>
+    <div class="metric"><div class="value">15</div>
+      <div class="label">CSV files containing rows</div></div>
+    <div class="metric"><div class="value">123</div>
+      <div class="label">Total result rows</div></div>
+  </div>
+
+  <section class="experiment">
+    <h2>Dataset inventory</h2>
+    <p class="subtitle">Source: artifacts/results/</p>
+    <p><strong>Empty CSV files:</strong> None</p>
+    <p><strong>Generated:</strong> 2026-11-09 19:14 UTC</p>
+  </section>
+
+  
+        <section class="experiment" id="exp01_classical">
+          <div class="section-heading">
+            <h2>exp01_classical</h2>
+            <span class="row-count">10 rows</span>
+          </div>
+          <p class="filename">exp01_classical.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>scenario</th><th>estimator</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>linear</td><td>naive</td><td>0.6260422641261205</td><td>0.6373581221128688</td><td>0.121799585132474</td><td>0.0</td><td>0.41698291569882834</td><td>0.00017442499997741834</td><td>100</td></tr><tr><td>linear</td><td>regression_adj</td><td>9.684591648122076e-05</td><td>0.06350844176429965</td><td>0.06506091526123572</td><td>—</td><td>—</td><td>0.001517680999932054</td><td>100</td></tr><tr><td>linear</td><td>ipw_hajek</td><td>0.00523931276870015</td><td>0.08023862028447738</td><td>0.08097794713821684</td><td>1.0</td><td>0.5107382357243376</td><td>0.002823673999955645</td><td>100</td></tr><tr><td>linear</td><td>aipw_linear</td><td>0.0026595519803270418</td><td>0.0673428675065943</td><td>0.06879293427131598</td><td>0.97</td><td>0.29475721168425734</td><td>0.016188240999999836</td><td>100</td></tr><tr><td>linear</td><td>psm_ate</td><td>0.005733441776698827</td><td>0.10139984008596652</td><td>0.10359168188559449</td><td>—</td><td>—</td><td>0.004463813999982449</td><td>100</td></tr><tr><td>nonlinear</td><td>naive</td><td>0.5602559051481075</td><td>0.5675061621850723</td><td>0.09350768466084106</td><td>0.0</td><td>0.3916176648209817</td><td>0.00017036399998687557</td><td>100</td></tr><tr><td>nonlinear</td><td>regression_adj</td><td>0.018675934969245567</td><td>0.07723941210046073</td><td>0.07836968780053324</td><td>—</td><td>—</td><td>0.001412244999937684</td><td>100</td></tr><tr><td>nonlinear</td><td>ipw_hajek</td><td>0.003811079688079769</td><td>0.08854775864474553</td><td>0.09194476971694047</td><td>1.0</td><td>0.4778371271850361</td><td>0.0027437320000262846</td><td>100</td></tr><tr><td>nonlinear</td><td>aipw_linear</td><td>-0.0016281027758887213</td><td>0.10679425353332579</td><td>0.11043401831456953</td><td>0.99</td><td>0.4746956860797668</td><td>0.015682075999920927</td><td>100</td></tr><tr><td>nonlinear</td><td>psm_ate</td><td>-0.003887500954252507</td><td>0.10817868660950415</td><td>0.11143618940429711</td><td>—</td><td>—</td><td>0.004312519000059183</td><td>100</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp02_meta_learners">
+          <div class="section-heading">
+            <h2>exp02_meta_learners</h2>
+            <span class="row-count">6 rows</span>
+          </div>
+          <p class="filename">exp02_meta_learners.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>scenario</th><th>learner</th><th>pehe</th><th>pehe_sd</th><th>ate_abs_err</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>linear</td><td>s_learner</td><td>0.2524072193624973</td><td>0.03448197043663013</td><td>0.07767789967670495</td><td>0.06315382333329277</td><td>30</td></tr><tr><td>linear</td><td>t_learner</td><td>0.48657256540229393</td><td>0.025654163322136176</td><td>0.0531206131937525</td><td>0.11278412333328257</td><td>30</td></tr><tr><td>linear</td><td>x_learner</td><td>0.32515406146426745</td><td>0.025769267198042674</td><td>0.050583184449189855</td><td>0.2274958166667299</td><td>30</td></tr><tr><td>nonlinear</td><td>s_learner</td><td>0.2888562693511296</td><td>0.0381341714082021</td><td>0.06730337265436039</td><td>0.0893919166666213</td><td>30</td></tr><tr><td>nonlinear</td><td>t_learner</td><td>0.536675907479321</td><td>0.03865009947415611</td><td>0.052378259447022575</td><td>0.16485901333326183</td><td>30</td></tr><tr><td>nonlinear</td><td>x_learner</td><td>0.3264084288182199</td><td>0.022984733270900448</td><td>0.04897668107737863</td><td>0.3357700999999603</td><td>30</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp03_dml_vs_aipw">
+          <div class="section-heading">
+            <h2>exp03_dml_vs_aipw</h2>
+            <span class="row-count">6 rows</span>
+          </div>
+          <p class="filename">exp03_dml_vs_aipw.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>scenario</th><th>estimator</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>linear</td><td>dml_plr_gb</td><td>-0.013505302261946187</td><td>0.05081879852453169</td><td>0.04724636592444641</td><td>0.9666666666666667</td><td>0.1998793644082634</td><td>0.6388389933333808</td><td>30</td></tr><tr><td>linear</td><td>aipw_crossfit_gb</td><td>-0.009233943384448757</td><td>0.05199884487979546</td><td>0.051878550888559534</td><td>0.9333333333333333</td><td>0.22307515710845768</td><td>0.649806003333318</td><td>30</td></tr><tr><td>linear</td><td>aipw_crossfit_linear</td><td>-0.011447839628828742</td><td>0.04339524359723473</td><td>0.041886206967708756</td><td>0.9333333333333333</td><td>0.20544933017171593</td><td>0.026455420000032367</td><td>30</td></tr><tr><td>nonlinear</td><td>dml_plr_gb</td><td>-0.01931283487937486</td><td>0.05374499620336408</td><td>0.04926785627342727</td><td>0.9</td><td>0.20288823265703576</td><td>0.6046554566665691</td><td>30</td></tr><tr><td>nonlinear</td><td>aipw_crossfit_gb</td><td>-0.00144344624056492</td><td>0.05008911255473541</td><td>0.049729866545823766</td><td>0.9666666666666667</td><td>0.2323350017942994</td><td>0.6440732766667073</td><td>30</td></tr><tr><td>nonlinear</td><td>aipw_crossfit_linear</td><td>0.005036473078740115</td><td>0.07285813164901848</td><td>0.07279244301891724</td><td>0.9666666666666667</td><td>0.31594020226686476</td><td>0.027184053333288223</td><td>30</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp03b_forest">
+          <div class="section-heading">
+            <h2>exp03b_forest</h2>
+            <span class="row-count">6 rows</span>
+          </div>
+          <p class="filename">exp03b_forest.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>scenario</th><th>learner</th><th>pehe</th><th>pehe_sd</th><th>ate_abs_err</th><th>pointwise_coverage</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>randomized_nonlinear</td><td>t_learner</td><td>0.4715665792944345</td><td>0.02986508889168855</td><td>0.03468875806454044</td><td>—</td><td>0.1075170000000071</td><td>20</td></tr><tr><td>randomized_nonlinear</td><td>x_learner</td><td>0.33115000025985974</td><td>0.02556039917518896</td><td>0.03426831230896596</td><td>—</td><td>0.21637141000005614</td><td>20</td></tr><tr><td>randomized_nonlinear</td><td>honest_forest</td><td>0.16623565683919814</td><td>0.031112675458280014</td><td>0.03126430770812423</td><td>0.69025</td><td>0.5664726499998778</td><td>20</td></tr><tr><td>observational_nonlinear</td><td>t_learner</td><td>0.5357446283459607</td><td>0.03974009270275153</td><td>0.03788722099359258</td><td>—</td><td>0.11407892000001993</td><td>20</td></tr><tr><td>observational_nonlinear</td><td>x_learner</td><td>0.32894646848940806</td><td>0.027075331013315686</td><td>0.03484412989107711</td><td>—</td><td>0.24152074999988143</td><td>20</td></tr><tr><td>observational_nonlinear</td><td>honest_forest</td><td>0.1795303975458829</td><td>0.029236321827236334</td><td>0.04532801224095397</td><td>0.66505</td><td>0.6414589300000444</td><td>20</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp04_randomized_vs_observational">
+          <div class="section-heading">
+            <h2>exp04_randomized_vs_observational</h2>
+            <span class="row-count">8 rows</span>
+          </div>
+          <p class="filename">exp04_randomized_vs_observational.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>assignment</th><th>estimator</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>randomized</td><td>naive</td><td>-0.004191869654334109</td><td>0.10605659702733347</td><td>0.10552749093976475</td><td>0.95</td><td>0.427215882104506</td><td>0.00015309199997318501</td><td>100</td></tr><tr><td>randomized</td><td>regression_adj</td><td>-0.0033638802082412746</td><td>0.07296105445546389</td><td>0.07431607522569122</td><td>—</td><td>—</td><td>0.0013975330000448594</td><td>100</td></tr><tr><td>randomized</td><td>ipw_hajek</td><td>-0.003422143915764936</td><td>0.07309159297299879</td><td>0.07440258885842896</td><td>0.99</td><td>0.4283804917316453</td><td>0.002543273999963276</td><td>100</td></tr><tr><td>randomized</td><td>aipw_linear</td><td>-0.0034330797832540405</td><td>0.07332933820409251</td><td>0.07478020014920045</td><td>0.92</td><td>0.2583136786456688</td><td>0.015815053999958764</td><td>100</td></tr><tr><td>observational</td><td>naive</td><td>0.6426219402437086</td><td>0.651097393555668</td><td>0.1083229032468016</td><td>0.0</td><td>0.41937056579181586</td><td>0.00015241400000377326</td><td>100</td></tr><tr><td>observational</td><td>regression_adj</td><td>0.011247798931926583</td><td>0.060092883033923974</td><td>0.06053796748958813</td><td>—</td><td>—</td><td>0.0014069790000121429</td><td>100</td></tr><tr><td>observational</td><td>ipw_hajek</td><td>0.014657231977838671</td><td>0.06983583684076886</td><td>0.07012698681771806</td><td>1.0</td><td>0.512365930124349</td><td>0.0027320370000325058</td><td>100</td></tr><tr><td>observational</td><td>aipw_linear</td><td>0.008754196240863212</td><td>0.06349311816996088</td><td>0.06455926756491713</td><td>0.97</td><td>0.2941117002477266</td><td>0.016192344999981286</td><td>100</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp05_confounding">
+          <div class="section-heading">
+            <h2>exp05_confounding</h2>
+            <span class="row-count">20 rows</span>
+          </div>
+          <p class="filename">exp05_confounding.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>confounding</th><th>estimator</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>0.0</td><td>naive</td><td>0.00021512512098464164</td><td>0.07280797905542548</td><td>0.07278483505448895</td><td>0.97</td><td>0.3025914315123515</td><td>0.00017011999998430837</td><td>100</td></tr><tr><td>0.0</td><td>regression_adj</td><td>-0.00024217022223840812</td><td>0.045671277828037836</td><td>0.04763737244680835</td><td>—</td><td>—</td><td>0.001511593999921388</td><td>100</td></tr><tr><td>0.0</td><td>ipw_hajek</td><td>-0.0002841098176998247</td><td>0.0456365611220537</td><td>0.04756646873931778</td><td>1.0</td><td>0.30295657622008826</td><td>0.0027952120000645665</td><td>100</td></tr><tr><td>0.0</td><td>aipw_linear</td><td>-6.078911853576563e-05</td><td>0.04535693593228241</td><td>0.047298748902306155</td><td>0.96</td><td>0.18223498394774815</td><td>0.016226437999939662</td><td>100</td></tr><tr><td>0.5</td><td>naive</td><td>0.3537105980629449</td><td>0.36244286267732984</td><td>0.08009519057600474</td><td>0.0</td><td>0.30099722822910496</td><td>0.0001799250000021857</td><td>100</td></tr><tr><td>0.5</td><td>regression_adj</td><td>-0.0006896904492298039</td><td>0.04473080872926351</td><td>0.0453632565088368</td><td>—</td><td>—</td><td>0.001589555000045948</td><td>100</td></tr><tr><td>0.5</td><td>ipw_hajek</td><td>0.0005550122902501986</td><td>0.04406594811005654</td><td>0.044606971582429114</td><td>1.0</td><td>0.3157235166399209</td><td>0.0030581080000138174</td><td>100</td></tr><tr><td>0.5</td><td>aipw_linear</td><td>-0.0011620965610178813</td><td>0.04498627048838953</td><td>0.04539047688134589</td><td>0.95</td><td>0.18719241231954978</td><td>0.01748189199995977</td><td>100</td></tr><tr><td>1.0</td><td>naive</td><td>0.6274205437999715</td><td>0.6309378494045428</td><td>0.06602332275988866</td><td>0.0</td><td>0.29726132076208645</td><td>0.000186167999954705</td><td>100</td></tr><tr><td>1.0</td><td>regression_adj</td><td>-0.0015555192945345465</td><td>0.040014000958317905</td><td>0.040817683958725745</td><td>—</td><td>—</td><td>0.0016004809999776626</td><td>100</td></tr><tr><td>1.0</td><td>ipw_hajek</td><td>-0.0010109056215896872</td><td>0.046683653892312986</td><td>0.04697949973155001</td><td>1.0</td><td>0.36423902305598843</td><td>0.0031287349999638537</td><td>100</td></tr><tr><td>1.0</td><td>aipw_linear</td><td>-0.002316487546067761</td><td>0.038210384417529615</td><td>0.03824988664532335</td><td>1.0</td><td>0.20639255017056574</td><td>0.017615149000030215</td><td>100</td></tr><tr><td>2.0</td><td>naive</td><td>0.9380613301187991</td><td>0.9406315963538979</td><td>0.06807481579998304</td><td>0.0</td><td>0.2905389733221547</td><td>0.00020662099994297022</td><td>100</td></tr><tr><td>2.0</td><td>regression_adj</td><td>0.004514152390923033</td><td>0.05544299388385001</td><td>0.05639282713864466</td><td>—</td><td>—</td><td>0.001804476000024806</td><td>100</td></tr><tr><td>2.0</td><td>ipw_hajek</td><td>0.0272340481800161</td><td>0.13180565987070278</td><td>0.12905572185470215</td><td>0.95</td><td>0.5903552732358324</td><td>0.003889484999999695</td><td>100</td></tr><tr><td>2.0</td><td>aipw_linear</td><td>0.007259358169700407</td><td>0.0830427320652562</td><td>0.08311741421382667</td><td>0.97</td><td>0.30710640138986245</td><td>0.019736278999916975</td><td>100</td></tr><tr><td>3.0</td><td>naive</td><td>1.0719040995980373</td><td>1.074020353198978</td><td>0.06466602103505846</td><td>0.0</td><td>0.28675557779473765</td><td>0.0001901559999350866</td><td>100</td></tr><tr><td>3.0</td><td>regression_adj</td><td>-0.0008194837891561924</td><td>0.062351902574407654</td><td>0.06302002964701194</td><td>—</td><td>—</td><td>0.0016736809999110846</td><td>100</td></tr><tr><td>3.0</td><td>ipw_hajek</td><td>-0.021314711050630743</td><td>0.4259688265451965</td><td>0.4266984916835698</td><td>0.84</td><td>0.9904548575922639</td><td>0.003803273999992598</td><td>100</td></tr><tr><td>3.0</td><td>aipw_linear</td><td>-0.002635411216408974</td><td>0.1012347196267008</td><td>0.10079167089430072</td><td>0.96</td><td>0.3760367672077822</td><td>0.021689894000001004</td><td>100</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp06_hidden_confounding">
+          <div class="section-heading">
+            <h2>exp06_hidden_confounding</h2>
+            <span class="row-count">12 rows</span>
+          </div>
+          <p class="filename">exp06_hidden_confounding.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>hidden_strength</th><th>estimator</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>0.0</td><td>aipw_observed_X</td><td>-0.004354848155508748</td><td>0.049204112599116966</td><td>0.048834799339208375</td><td>0.96</td><td>0.20542823103615582</td><td>0.018006330999951387</td><td>100</td></tr><tr><td>0.0</td><td>aipw_oracle_with_U</td><td>-0.00432432267142984</td><td>0.04937765179859096</td><td>0.04906022146640064</td><td>0.96</td><td>0.20582259157151547</td><td>0.01894474999998238</td><td>100</td></tr><tr><td>0.0</td><td>naive</td><td>0.6218383759338592</td><td>0.6266247810880891</td><td>0.07731289807515222</td><td>0.0</td><td>0.2968288166384324</td><td>0.000173101999962455</td><td>100</td></tr><tr><td>0.5</td><td>aipw_observed_X</td><td>0.23163050246352615</td><td>0.23870326331311245</td><td>0.058373988330802616</td><td>0.03</td><td>0.22548789726356386</td><td>0.01745810399996117</td><td>100</td></tr><tr><td>0.5</td><td>aipw_oracle_with_U</td><td>-0.005270611727118313</td><td>0.05442180868934212</td><td>0.05494432028898983</td><td>0.94</td><td>0.21616836799091904</td><td>0.018209738000005016</td><td>100</td></tr><tr><td>0.5</td><td>naive</td><td>0.8037921329873359</td><td>0.8071792738690652</td><td>0.07441308087912175</td><td>0.0</td><td>0.30619242645191497</td><td>0.0001618579999467329</td><td>100</td></tr><tr><td>1.0</td><td>aipw_observed_X</td><td>0.826688149527766</td><td>0.8299108431086323</td><td>0.07367045610905747</td><td>0.0</td><td>0.2657462717804906</td><td>0.01841443400000571</td><td>100</td></tr><tr><td>1.0</td><td>aipw_oracle_with_U</td><td>-0.0013979521286773455</td><td>0.06555194011612284</td><td>0.06600591351601437</td><td>0.94</td><td>0.2433560997751897</td><td>0.01849887500003206</td><td>100</td></tr><tr><td>1.0</td><td>naive</td><td>1.2731436580700088</td><td>1.2760761962845966</td><td>0.0863693037528727</td><td>0.0</td><td>0.3306037693392046</td><td>0.00017336499999146327</td><td>100</td></tr><tr><td>1.5</td><td>aipw_observed_X</td><td>1.6162132663633986</td><td>1.618284937042474</td><td>0.08196956044504967</td><td>0.0</td><td>0.30813711669525284</td><td>0.01884303799997724</td><td>100</td></tr><tr><td>1.5</td><td>aipw_oracle_with_U</td><td>-0.0007300857503800983</td><td>0.07088082445863113</td><td>0.07078300324496221</td><td>0.97</td><td>0.2829919078655512</td><td>0.020357769000011103</td><td>100</td></tr><tr><td>1.5</td><td>naive</td><td>1.938147917619589</td><td>1.9402773203666344</td><td>0.0905235889479691</td><td>0.0</td><td>0.36252245409846956</td><td>0.00017812099994443998</td><td>100</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp06_robustness_value">
+          <div class="section-heading">
+            <h2>exp06_robustness_value</h2>
+            <span class="row-count">4 rows</span>
+          </div>
+          <p class="filename">exp06_robustness_value.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>hidden_strength</th><th>rv_q</th><th>rv_q_alpha</th></tr></thead><tbody><tr><td>0.0</td><td>0.3590547001950908</td><td>0.3309114473824841</td></tr><tr><td>0.5</td><td>0.39141367909942104</td><td>0.36484745089020065</td></tr><tr><td>1.0</td><td>0.45859471329898366</td><td>0.4353271453446597</td></tr><tr><td>1.5</td><td>0.5229667210281111</td><td>0.5028817494979321</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp06b_placebo">
+          <div class="section-heading">
+            <h2>exp06b_placebo</h2>
+            <span class="row-count">2 rows</span>
+          </div>
+          <p class="filename">exp06b_placebo.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>hidden_strength</th><th>mean_placebo_estimate</th><th>sd</th><th>rejection_rate</th><th>n_perm</th></tr></thead><tbody><tr><td>0.0</td><td>-0.004488704915183471</td><td>0.04899471871219509</td><td>0.055</td><td>200</td></tr><tr><td>1.5</td><td>-0.006214768748772815</td><td>0.087960698751507</td><td>0.035</td><td>200</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp07_sample_size">
+          <div class="section-heading">
+            <h2>exp07_sample_size</h2>
+            <span class="row-count">15 rows</span>
+          </div>
+          <p class="filename">exp07_sample_size.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>n</th><th>estimator</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>runtime_s</th><th>n_reps</th></tr></thead><tbody><tr><td>500</td><td>regression_adj</td><td>0.009026030542187561</td><td>0.1112262036578766</td><td>0.11401177103868688</td><td>—</td><td>—</td><td>0.0014015920000019833</td><td>50</td></tr><tr><td>500</td><td>ipw_hajek</td><td>0.030855338401206658</td><td>0.12339868322432185</td><td>0.12151608045893655</td><td>1.0</td><td>0.7015759873531947</td><td>0.0027405580000595363</td><td>50</td></tr><tr><td>500</td><td>aipw_linear</td><td>0.004754861213697536</td><td>0.11843330065454036</td><td>0.12153633824087974</td><td>0.92</td><td>0.4186799716345205</td><td>0.01694632399996408</td><td>50</td></tr><tr><td>1000</td><td>regression_adj</td><td>-0.01156393495582994</td><td>0.06564640322494177</td><td>0.06838742464377694</td><td>—</td><td>—</td><td>0.0015517519999775687</td><td>50</td></tr><tr><td>1000</td><td>ipw_hajek</td><td>-0.01798975759383704</td><td>0.08605101246259761</td><td>0.08785282345412622</td><td>1.0</td><td>0.5342655413857282</td><td>0.002882030000018858</td><td>50</td></tr><tr><td>1000</td><td>aipw_linear</td><td>-0.013880951569479877</td><td>0.06877178264162678</td><td>0.0719952151974061</td><td>0.98</td><td>0.3007686746118457</td><td>0.01787143200004721</td><td>50</td></tr><tr><td>5000</td><td>regression_adj</td><td>0.004719455921803214</td><td>0.033889193347277295</td><td>0.037061591083651084</td><td>—</td><td>—</td><td>0.001840966666592673</td><td>30</td></tr><tr><td>5000</td><td>ipw_hajek</td><td>0.0030197947435663063</td><td>0.03721380448973865</td><td>0.03898661813616485</td><td>1.0</td><td>0.22820689307835942</td><td>0.0038891999999880983</td><td>30</td></tr><tr><td>5000</td><td>aipw_linear</td><td>0.0026712459861217546</td><td>0.03529987761563555</td><td>0.038307039672441826</td><td>0.9666666666666667</td><td>0.12954582281119723</td><td>0.021599053333496463</td><td>30</td></tr><tr><td>10000</td><td>regression_adj</td><td>0.005538828844064048</td><td>0.022158830068226002</td><td>0.022846248961673945</td><td>—</td><td>—</td><td>0.0024828150000757885</td><td>20</td></tr><tr><td>10000</td><td>ipw_hajek</td><td>0.01098764611593736</td><td>0.028870900934328973</td><td>0.02837126693730247</td><td>1.0</td><td>0.15932106579201916</td><td>0.0057067400000960335</td><td>20</td></tr><tr><td>10000</td><td>aipw_linear</td><td>0.008364339645072522</td><td>0.02390226173163372</td><td>0.023811273849364885</td><td>0.95</td><td>0.09031847517137703</td><td>0.027829249999967942</td><td>20</td></tr><tr><td>50000</td><td>regression_adj</td><td>0.0013857688237455257</td><td>0.010613227961441485</td><td>0.011251314870754262</td><td>—</td><td>—</td><td>0.008537079999859998</td><td>10</td></tr><tr><td>50000</td><td>ipw_hajek</td><td>0.002918188795220977</td><td>0.010117425965100563</td><td>0.010242894478685647</td><td>1.0</td><td>0.07232881612329174</td><td>0.021614189999945667</td><td>10</td></tr><tr><td>50000</td><td>aipw_linear</td><td>0.002324554606245344</td><td>0.01026646500684076</td><td>0.010985337693353745</td><td>1.0</td><td>0.04063296713485347</td><td>0.10892358000019157</td><td>10</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp08_ipw_check">
+          <div class="section-heading">
+            <h2>exp08_ipw_check</h2>
+            <span class="row-count">1 rows</span>
+          </div>
+          <p class="filename">exp08_ipw_check.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>budget</th><th>mean_true_value</th><th>mean_ipw_estimate</th><th>mean_abs_gap</th><th>n_reps</th></tr></thead><tbody><tr><td>0.3</td><td>0.9425995359278817</td><td>0.9453473042633782</td><td>0.0340356003758623</td><td>20</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp08_policy_value">
+          <div class="section-heading">
+            <h2>exp08_policy_value</h2>
+            <span class="row-count">24 rows</span>
+          </div>
+          <p class="filename">exp08_policy_value.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>budget</th><th>policy</th><th>mean</th><th>std</th></tr></thead><tbody><tr><td>0.1</td><td>oracle</td><td>0.6445745359278818</td><td>0.0308460749418775</td></tr><tr><td>0.1</td><td>random</td><td>0.5952995359278818</td><td>0.03181662538178368</td></tr><tr><td>0.1</td><td>t_learner</td><td>0.6430745359278818</td><td>0.031962376351857766</td></tr><tr><td>0.1</td><td>x_learner</td><td>0.6443995359278818</td><td>0.031017669801132613</td></tr><tr><td>0.2</td><td>oracle</td><td>0.7945745359278817</td><td>0.03084607494187753</td></tr><tr><td>0.2</td><td>random</td><td>0.6947745359278819</td><td>0.03435944931731687</td></tr><tr><td>0.2</td><td>t_learner</td><td>0.7900495359278819</td><td>0.0325821685018997</td></tr><tr><td>0.2</td><td>x_learner</td><td>0.7938745359278818</td><td>0.031425255238608917</td></tr><tr><td>0.3</td><td>oracle</td><td>0.9445745359278819</td><td>0.030846074941877535</td></tr><tr><td>0.3</td><td>random</td><td>0.7956245359278818</td><td>0.03393962861956649</td></tr><tr><td>0.3</td><td>t_learner</td><td>0.9334995359278817</td><td>0.03302235040893258</td></tr><tr><td>0.3</td><td>x_learner</td><td>0.9425995359278817</td><td>0.03183525657825164</td></tr><tr><td>0.5</td><td>oracle</td><td>1.2398245359278817</td><td>0.03422560157456572</td></tr><tr><td>0.5</td><td>random</td><td>0.9934745359278818</td><td>0.03604155648406004</td></tr><tr><td>0.5</td><td>t_learner</td><td>1.1852995359278817</td><td>0.03774581113681141</td></tr><tr><td>0.5</td><td>x_learner</td><td>1.2158245359278816</td><td>0.03746028099637507</td></tr><tr><td>0.7</td><td>oracle</td><td>1.3445495359278818</td><td>0.03739716180197934</td></tr><tr><td>0.7</td><td>random</td><td>1.1951745359278818</td><td>0.03568627521649361</td></tr><tr><td>0.7</td><td>t_learner</td><td>1.3323995359278817</td><td>0.03834990116412279</td></tr><tr><td>0.7</td><td>x_learner</td><td>1.3420745359278816</td><td>0.03829750675151842</td></tr><tr><td>1.0</td><td>oracle</td><td>1.4945495359278818</td><td>0.03739716180197944</td></tr><tr><td>1.0</td><td>random</td><td>1.4945495359278818</td><td>0.03739716180197944</td></tr><tr><td>1.0</td><td>t_learner</td><td>1.4623370359278818</td><td>0.04192839931957904</td></tr><tr><td>1.0</td><td>x_learner</td><td>1.4824495359278818</td><td>0.03846673840115679</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp09_negative_control">
+          <div class="section-heading">
+            <h2>exp09_negative_control</h2>
+            <span class="row-count">3 rows</span>
+          </div>
+          <p class="filename">exp09_negative_control.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>hidden_strength</th><th>mean_nco_estimate</th><th>rejection_rate</th><th>n_reps</th></tr></thead><tbody><tr><td>0.0</td><td>0.0005328632933924016</td><td>0.12</td><td>50</td></tr><tr><td>0.5</td><td>0.38453249844331466</td><td>1.0</td><td>50</td></tr><tr><td>1.0</td><td>0.6754595210419645</td><td>1.0</td><td>50</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp10_did">
+          <div class="section-heading">
+            <h2>exp10_did</h2>
+            <span class="row-count">2 rows</span>
+          </div>
+          <p class="filename">exp10_did.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>scenario</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>n_reps</th><th>pretrend_rejection_rate</th></tr></thead><tbody><tr><td>parallel_trends</td><td>-0.0035510688896278264</td><td>0.08840806755587137</td><td>0.08878174531806554</td><td>0.97</td><td>0.32250626321848375</td><td>100</td><td>0.02</td></tr><tr><td>violated_trends(0.3)</td><td>0.8964489311103722</td><td>0.9007907983586607</td><td>0.08878174531806576</td><td>0.0</td><td>0.32250626321848364</td><td>100</td><td>1.0</td></tr></tbody></table></div>
+        </section>
+        
+        <section class="experiment" id="exp11_iv">
+          <div class="section-heading">
+            <h2>exp11_iv</h2>
+            <span class="row-count">4 rows</span>
+          </div>
+          <p class="filename">exp11_iv.csv</p>
+          <div class="table-wrap"><table><thead><tr><th>method</th><th>bias</th><th>rmse</th><th>sd</th><th>coverage</th><th>ci_width</th><th>n_reps</th><th>mean_first_stage_F</th></tr></thead><tbody><tr><td>ols_confounded</td><td>0.33431894671236717</td><td>0.3349924302457766</td><td>0.021338308868288653</td><td>0.0</td><td>0.09211820523664965</td><td>100</td><td>—</td></tr><tr><td>2sls_strong(1.0)</td><td>-0.0006854058105429727</td><td>0.039342300795219096</td><td>0.03953449907239784</td><td>1.0</td><td>0.17424110708656604</td><td>100</td><td>505.14465321509647</td></tr><tr><td>2sls_weak(0.08)</td><td>-0.28034061431610374</td><td>2.180468184215483</td><td>2.17326516028531</td><td>0.98</td><td>13.348246442042962</td><td>100</td><td>4.314805739421237</td></tr><tr><td>2sls_exclusion_violated(0.3)</td><td>0.2980778267041163</td><td>0.30015920991732287</td><td>0.03546460072506393</td><td>0.0</td><td>0.15436980001107822</td><td>100</td><td>505.14465321509647</td></tr></tbody></table></div>
+        </section>
+        
+  <section class="experiment"><h2>Execution environment</h2><pre>{
+  &quot;python&quot;: &quot;3.12.10&quot;,
+  &quot;os&quot;: &quot;Windows-11-10.0.26200-SP0&quot;,
+  &quot;numpy&quot;: &quot;2.5.4&quot;,
+  &quot;scipy&quot;: &quot;1.18.1&quot;,
+  &quot;sklearn&quot;: &quot;1.9.1&quot;,
+  &quot;pandas&quot;: &quot;3.1.1&quot;,
+  &quot;quick&quot;: false,
+  &quot;total_runtime_s&quot;: 205.6338928999994
+}</pre></section>
+
+  <footer>
+    CausalForge · Generated from local CSV artifacts · Original result files were not modified.
+  </footer>
+</main>
+</body>
+</html>
