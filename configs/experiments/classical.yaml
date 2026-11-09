@@ -1,0 +1,8 @@
+experiment:
+  id: exp-001
+  name: Classical ATE comparison
+  dataset: { name: synthetic_scm, n: 1000 }
+  estimand: ATE
+  estimators: [naive, regression_adj, ipw_hajek, aipw_linear, psm_ate]
+  evaluation: [bias, rmse, coverage]
+  reproducibility: { seed: 42, repetitions: 100 }
