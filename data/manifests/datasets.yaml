@@ -1,0 +1,37 @@
+# Initial manifest. Fields marked `unverified` must be confirmed after download
+# (scripts/download_data.py records size + SHA-256 in downloads.json).
+datasets:
+  criteo:
+    name: Criteo Uplift Prediction Dataset
+    version: "2.1"
+    source: https://ailab.criteo.com/criteo-uplift-prediction-dataset/
+    file: criteo-research-uplift-v2.1.csv.gz
+    license: CC BY-NC-SA 4.0
+    treatment: treatment            # assignment (ITT analysis)
+    post_treatment_columns: [exposure]
+    outcomes: [conversion, visit]
+    covariates: f0-f11
+    ground_truth: false             # no individual counterfactuals -> no PEHE
+    checksum: unverified
+  ihdp:
+    name: Infant Health and Development Program (semi-synthetic, NPCI)
+    version: 100 replications
+    source: https://www.fredjo.com/
+    format: npz
+    ground_truth: true
+    checksum: unverified
+  acic2016:
+    name: ACIC 2016
+    source: https://doi.org/10.5281/zenodo.18198601
+    format: archive (manual download from Zenodo)
+    ground_truth: true
+    checksum: unverified
+  lalonde:
+    name: LaLonde / NSW
+    role: experimental-vs-observational comparison (planned)
+    checksum: unverified
+  synthetic_scm:
+    name: CausalForge Synthetic SCM
+    version: "1.0"
+    source: internal generator (src/causalforge/synthetic/generators.py)
+    ground_truth: true
