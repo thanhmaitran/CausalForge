@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "causalforge"
+version = "1.0.0"
+description = "Causal inference, treatment effect estimation and decision intelligence"
+requires-python = ">=3.12,<3.13"
+readme = "README.md"
+license = { text = "MIT" }
+dependencies = ["numpy", "scipy", "pandas", "scikit-learn", "networkx>=3.3", "pyyaml", "matplotlib"]
+
+[project.optional-dependencies]
+dev = ["pytest", "pytest-cov", "hypothesis", "ruff", "mypy"]
+reference = ["dowhy", "econml", "statsmodels"]   # cross-checks / Causal Forest baseline
+data = ["polars", "pyarrow"]
+tracking = ["mlflow"]
+api = ["fastapi", "uvicorn[standard]", "httpx"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/causalforge"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP"]
+[tool.mypy]
+python_version = "3.12"
+mypy_path = "src"
+explicit_package_bases = true
+namespace_packages = true
+
+[[tool.mypy.overrides]]
+module = ["sklearn.*"]
+disable_error_code = ["import-untyped"]

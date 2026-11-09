@@ -1,0 +1,7 @@
+cff-version: 1.2.0
+message: "If you use CausalForge, please cite it."
+title: CausalForge
+version: 1.0.0
+type: software
+authors: [{ name: "CausalForge contributors" }]
+license: MIT
