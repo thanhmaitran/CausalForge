@@ -1,0 +1,31 @@
+﻿CausalForge - Project Structure
+================================
+
+[DIR]  .github
+[DIR]  api
+[DIR]  artifacts
+[DIR]  backups
+[DIR]  configs
+[DIR]  data
+[DIR]  docker
+[DIR]  docs
+[DIR]  frontend
+[DIR]  notebooks
+[DIR]  reports
+[DIR]  scripts
+[DIR]  src
+[DIR]  tests
+
+[FILE] .coverage
+[FILE] .env.example
+[FILE] .gitignore
+[FILE] CHANGELOG.md
+[FILE] CITATION.cff
+[FILE] CONTRIBUTING.md
+[FILE] LICENSE
+[FILE] Makefile
+[FILE] mypy-full-report.txt
+[FILE] pyproject.toml
+[FILE] pyproject.toml.backup-mypy-overrides
+[FILE] README.md
+[FILE] run_experiments_local.log
