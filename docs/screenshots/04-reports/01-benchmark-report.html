@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CausalForge Benchmark Report</title>
+<style>
+:root {
+    color-scheme: light;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: #202938;
+    background: #eef2f7;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 42px 20px;
+    line-height: 1.72;
+}
+.page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 76px;
+    background: white;
+    border: 1px solid #e1e7ef;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(25, 40, 65, .08);
+}
+.cover {
+    border-bottom: 2px solid #dce5ef;
+    padding-bottom: 28px;
+    margin-bottom: 38px;
+}
+.brand {
+    color: #315c91;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.subtitle {
+    color: #66758a;
+    font-size: 15px;
+}
+h1 {
+    color: #152b49;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 16px 0;
+}
+h2 {
+    color: #1c426c;
+    font-size: 22px;
+    margin-top: 42px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #e4eaf1;
+}
+h3 {
+    color: #294d73;
+    font-size: 18px;
+    margin-top: 28px;
+}
+h4 { color: #355675; }
+p { margin: 13px 0; }
+a { color: #245d9c; overflow-wrap: anywhere; }
+ul, ol { padding-left: 28px; }
+li { margin: 5px 0; }
+blockquote {
+    margin: 20px 0;
+    padding: 12px 20px;
+    border-left: 4px solid #6c91bd;
+    background: #f3f7fb;
+    color: #42536a;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 22px 0;
+    font-size: 13px;
+}
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #dce4ed;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #edf3f9;
+    color: #244669;
+}
+tr:nth-child(even) td { background: #fafbfd; }
+pre {
+    padding: 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    background: #172334;
+    color: #edf3fa;
+    font-size: 12px;
+    line-height: 1.55;
+}
+code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .9em;
+}
+p code, li code, td code {
+    background: #edf2f7;
+    color: #234d78;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 22px auto;
+}
+hr {
+    border: 0;
+    border-top: 1px solid #dce4ed;
+    margin: 32px 0;
+}
+@media print {
+    body { padding: 0; background: white; }
+    .page {
+        max-width: none;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 20mm;
+    }
+    h2, h3 { break-after: avoid; }
+    pre, table, img { break-inside: avoid; }
+}
+@media (max-width: 700px) {
+    body { padding: 8px; }
+    .page { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="cover">
+<div class="brand">CausalForge | Research & Engineering</div>
+<h1>CausalForge Benchmark Report</h1>
+<div class="subtitle">Experimental evaluation and benchmark evidence</div>
+</header>
+<article>
+<h1 id="causalforge-benchmark-report-auto-generated">CausalForge benchmark report (auto-generated)</h1>
+<p>Generated from <code>artifacts/results/*.csv</code> by <code>scripts/generate_report.py</code>. Environment: Python 3.12.3, numpy 2.5.4, scikit-learn 1.9.1. Total runtime 122s. All data are <strong>synthetic SCMs with exact ground truth</strong>; no real dataset (IHDP, ACIC, Criteo, LaLonde) has been run yet.</p>
+<h2 id="exp-01-classical-estimators-n1000">EXP-01 Classical estimators (n=1000)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">scenario</th>
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.626</td>
+<td style="text-align: right;">0.637</td>
+<td style="text-align: right;">0.122</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.417</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.064</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0.081</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.511</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">0.069</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.295</td>
+<td style="text-align: right;">0.014</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">psm_ate</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.104</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.56</td>
+<td style="text-align: right;">0.568</td>
+<td style="text-align: right;">0.094</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.392</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.019</td>
+<td style="text-align: right;">0.077</td>
+<td style="text-align: right;">0.078</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">0.089</td>
+<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.478</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0.002</td>
+<td style="text-align: right;">0.107</td>
+<td style="text-align: right;">0.11</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.475</td>
+<td style="text-align: right;">0.012</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">psm_ate</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: right;">0.108</td>
+<td style="text-align: right;">0.111</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-02-meta-learners-n2000">EXP-02 Meta-learners (n=2000)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">scenario</th>
+<th style="text-align: left;">learner</th>
+<th style="text-align: right;">pehe</th>
+<th style="text-align: right;">pehe_sd</th>
+<th style="text-align: right;">ate_abs_err</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">s_learner</td>
+<td style="text-align: right;">0.252</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">0.078</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.487</td>
+<td style="text-align: right;">0.026</td>
+<td style="text-align: right;">0.053</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.325</td>
+<td style="text-align: right;">0.026</td>
+<td style="text-align: right;">0.051</td>
+<td style="text-align: right;">0.127</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">s_learner</td>
+<td style="text-align: right;">0.289</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.067</td>
+<td style="text-align: right;">0.036</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.537</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.052</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.326</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.123</td>
+<td style="text-align: right;">30</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-03-partial-dml-plr-vs-cross-fitted-aipw">EXP-03 (partial) DML-PLR vs cross-fitted AIPW</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">scenario</th>
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">dml_plr_gb</td>
+<td style="text-align: right;">-0.014</td>
+<td style="text-align: right;">0.051</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.967</td>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: right;">0.291</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">aipw_crossfit_gb</td>
+<td style="text-align: right;">-0.009</td>
+<td style="text-align: right;">0.052</td>
+<td style="text-align: right;">0.052</td>
+<td style="text-align: right;">0.933</td>
+<td style="text-align: right;">0.223</td>
+<td style="text-align: right;">0.309</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">linear</td>
+<td style="text-align: left;">aipw_crossfit_linear</td>
+<td style="text-align: right;">-0.011</td>
+<td style="text-align: right;">0.043</td>
+<td style="text-align: right;">0.042</td>
+<td style="text-align: right;">0.933</td>
+<td style="text-align: right;">0.205</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">dml_plr_gb</td>
+<td style="text-align: right;">-0.019</td>
+<td style="text-align: right;">0.054</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.9</td>
+<td style="text-align: right;">0.203</td>
+<td style="text-align: right;">0.288</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">aipw_crossfit_gb</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.05</td>
+<td style="text-align: right;">0.967</td>
+<td style="text-align: right;">0.232</td>
+<td style="text-align: right;">0.305</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: left;">nonlinear</td>
+<td style="text-align: left;">aipw_crossfit_linear</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.967</td>
+<td style="text-align: right;">0.316</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">30</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-04-randomized-vs-observational">EXP-04 Randomized vs observational</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">assignment</th>
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">randomized</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: right;">0.106</td>
+<td style="text-align: right;">0.106</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.427</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">randomized</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">-0.003</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.074</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">randomized</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">-0.003</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.074</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.428</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">randomized</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0.003</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.075</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">0.258</td>
+<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.643</td>
+<td style="text-align: right;">0.651</td>
+<td style="text-align: right;">0.108</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.419</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">0.06</td>
+<td style="text-align: right;">0.061</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">0.07</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.512</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.009</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.294</td>
+<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-05-confounding-sweep">EXP-05 Confounding sweep</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">confounding</th>
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.073</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.303</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">-0</td>
+<td style="text-align: right;">0.046</td>
+<td style="text-align: right;">0.048</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">-0</td>
+<td style="text-align: right;">0.046</td>
+<td style="text-align: right;">0.048</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.303</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.182</td>
+<td style="text-align: right;">0.014</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.354</td>
+<td style="text-align: right;">0.362</td>
+<td style="text-align: right;">0.08</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.301</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.044</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.316</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.187</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.627</td>
+<td style="text-align: right;">0.631</td>
+<td style="text-align: right;">0.066</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.297</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">-0.002</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.041</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">0.047</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.364</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0.002</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.206</td>
+<td style="text-align: right;">0.018</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.938</td>
+<td style="text-align: right;">0.941</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.291</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">0.056</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">0.132</td>
+<td style="text-align: right;">0.129</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.59</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.007</td>
+<td style="text-align: right;">0.083</td>
+<td style="text-align: right;">0.083</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.307</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">1.072</td>
+<td style="text-align: right;">1.074</td>
+<td style="text-align: right;">0.065</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.287</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.062</td>
+<td style="text-align: right;">0.063</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">-0.021</td>
+<td style="text-align: right;">0.426</td>
+<td style="text-align: right;">0.427</td>
+<td style="text-align: right;">0.84</td>
+<td style="text-align: right;">0.99</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0.003</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.101</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.376</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-06-hidden-confounding">EXP-06 Hidden confounding</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">hidden_strength</th>
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">aipw_observed_X</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.205</td>
+<td style="text-align: right;">0.014</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">aipw_oracle_with_U</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.96</td>
+<td style="text-align: right;">0.206</td>
+<td style="text-align: right;">0.014</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.622</td>
+<td style="text-align: right;">0.627</td>
+<td style="text-align: right;">0.077</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.297</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">aipw_observed_X</td>
+<td style="text-align: right;">0.232</td>
+<td style="text-align: right;">0.239</td>
+<td style="text-align: right;">0.058</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">0.225</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">aipw_oracle_with_U</td>
+<td style="text-align: right;">-0.005</td>
+<td style="text-align: right;">0.054</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.216</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">0.804</td>
+<td style="text-align: right;">0.807</td>
+<td style="text-align: right;">0.074</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.306</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">aipw_observed_X</td>
+<td style="text-align: right;">0.827</td>
+<td style="text-align: right;">0.83</td>
+<td style="text-align: right;">0.074</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.266</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">aipw_oracle_with_U</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.066</td>
+<td style="text-align: right;">0.066</td>
+<td style="text-align: right;">0.94</td>
+<td style="text-align: right;">0.243</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">1.273</td>
+<td style="text-align: right;">1.276</td>
+<td style="text-align: right;">0.086</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.331</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: left;">aipw_observed_X</td>
+<td style="text-align: right;">1.616</td>
+<td style="text-align: right;">1.618</td>
+<td style="text-align: right;">0.082</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.308</td>
+<td style="text-align: right;">0.015</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: left;">aipw_oracle_with_U</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.071</td>
+<td style="text-align: right;">0.071</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.283</td>
+<td style="text-align: right;">0.016</td>
+<td style="text-align: right;">100</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: left;">naive</td>
+<td style="text-align: right;">1.938</td>
+<td style="text-align: right;">1.94</td>
+<td style="text-align: right;">0.091</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.363</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">100</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-06-mean-robustness-values-ols-30-reps">EXP-06 Mean robustness values (OLS, 30 reps)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">hidden_strength</th>
+<th style="text-align: right;">rv_q</th>
+<th style="text-align: right;">rv_q_alpha</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.359</td>
+<td style="text-align: right;">0.331</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.391</td>
+<td style="text-align: right;">0.365</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.459</td>
+<td style="text-align: right;">0.435</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">0.523</td>
+<td style="text-align: right;">0.503</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-06b-permutation-placebo-test">EXP-06b Permutation placebo test</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">hidden_strength</th>
+<th style="text-align: right;">mean_placebo_estimate</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">rejection_rate</th>
+<th style="text-align: right;">n_perm</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: right;">0.049</td>
+<td style="text-align: right;">0.055</td>
+<td style="text-align: right;">200</td>
+</tr>
+<tr>
+<td style="text-align: right;">1.5</td>
+<td style="text-align: right;">-0.006</td>
+<td style="text-align: right;">0.088</td>
+<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">200</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-07-sample-size">EXP-07 Sample size</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">n</th>
+<th style="text-align: left;">estimator</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">500</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.009</td>
+<td style="text-align: right;">0.111</td>
+<td style="text-align: right;">0.114</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">500</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.031</td>
+<td style="text-align: right;">0.123</td>
+<td style="text-align: right;">0.122</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.702</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">500</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.118</td>
+<td style="text-align: right;">0.122</td>
+<td style="text-align: right;">0.92</td>
+<td style="text-align: right;">0.419</td>
+<td style="text-align: right;">0.012</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">1000</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">-0.012</td>
+<td style="text-align: right;">0.066</td>
+<td style="text-align: right;">0.068</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">1000</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">-0.018</td>
+<td style="text-align: right;">0.086</td>
+<td style="text-align: right;">0.088</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.534</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">1000</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">-0.014</td>
+<td style="text-align: right;">0.069</td>
+<td style="text-align: right;">0.072</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">0.301</td>
+<td style="text-align: right;">0.013</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">5000</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.005</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">0.037</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: right;">5000</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">0.037</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.228</td>
+<td style="text-align: right;">0.004</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: right;">5000</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">0.967</td>
+<td style="text-align: right;">0.13</td>
+<td style="text-align: right;">0.019</td>
+<td style="text-align: right;">30</td>
+</tr>
+<tr>
+<td style="text-align: right;">10000</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">0.022</td>
+<td style="text-align: right;">0.023</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: right;">10000</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">0.029</td>
+<td style="text-align: right;">0.028</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.159</td>
+<td style="text-align: right;">0.006</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: right;">10000</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.008</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.024</td>
+<td style="text-align: right;">0.95</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: right;">50000</td>
+<td style="text-align: left;">regression_adj</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.007</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td style="text-align: right;">50000</td>
+<td style="text-align: left;">ipw_hajek</td>
+<td style="text-align: right;">0.003</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.072</td>
+<td style="text-align: right;">0.022</td>
+<td style="text-align: right;">10</td>
+</tr>
+<tr>
+<td style="text-align: right;">50000</td>
+<td style="text-align: left;">aipw_linear</td>
+<td style="text-align: right;">0.002</td>
+<td style="text-align: right;">0.01</td>
+<td style="text-align: right;">0.011</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.041</td>
+<td style="text-align: right;">0.09</td>
+<td style="text-align: right;">10</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-03b-honest-causal-forest-vs-tx-learner">EXP-03b Honest causal forest vs T/X-learner</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">scenario</th>
+<th style="text-align: left;">learner</th>
+<th style="text-align: right;">pehe</th>
+<th style="text-align: right;">pehe_sd</th>
+<th style="text-align: right;">ate_abs_err</th>
+<th style="text-align: right;">pointwise_coverage</th>
+<th style="text-align: right;">runtime_s</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">randomized_nonlinear</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.472</td>
+<td style="text-align: right;">0.03</td>
+<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.064</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">randomized_nonlinear</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.331</td>
+<td style="text-align: right;">0.026</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.124</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">randomized_nonlinear</td>
+<td style="text-align: left;">honest_forest</td>
+<td style="text-align: right;">0.166</td>
+<td style="text-align: right;">0.031</td>
+<td style="text-align: right;">0.031</td>
+<td style="text-align: right;">0.69</td>
+<td style="text-align: right;">0.356</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational_nonlinear</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.536</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">0.038</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.064</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational_nonlinear</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.329</td>
+<td style="text-align: right;">0.027</td>
+<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">nan</td>
+<td style="text-align: right;">0.123</td>
+<td style="text-align: right;">20</td>
+</tr>
+<tr>
+<td style="text-align: left;">observational_nonlinear</td>
+<td style="text-align: left;">honest_forest</td>
+<td style="text-align: right;">0.18</td>
+<td style="text-align: right;">0.029</td>
+<td style="text-align: right;">0.045</td>
+<td style="text-align: right;">0.665</td>
+<td style="text-align: right;">0.358</td>
+<td style="text-align: right;">20</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-09-negative-control-outcome-test">EXP-09 Negative-control outcome test</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">hidden_strength</th>
+<th style="text-align: right;">mean_nco_estimate</th>
+<th style="text-align: right;">rejection_rate</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.001</td>
+<td style="text-align: right;">0.12</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: right;">0.385</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">50</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.675</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">50</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-10-difference-in-differences-synthetic-panel">EXP-10 Difference-in-differences (synthetic panel)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">scenario</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">n_reps</th>
+<th style="text-align: right;">pretrend_rejection_rate</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">parallel_trends</td>
+<td style="text-align: right;">-0.004</td>
+<td style="text-align: right;">0.088</td>
+<td style="text-align: right;">0.089</td>
+<td style="text-align: right;">0.97</td>
+<td style="text-align: right;">0.323</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">0.02</td>
+</tr>
+<tr>
+<td style="text-align: left;">violated_trends(0.3)</td>
+<td style="text-align: right;">0.896</td>
+<td style="text-align: right;">0.901</td>
+<td style="text-align: right;">0.089</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.323</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">1</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-11-instrumental-variables-synthetic">EXP-11 Instrumental variables (synthetic)</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">method</th>
+<th style="text-align: right;">bias</th>
+<th style="text-align: right;">rmse</th>
+<th style="text-align: right;">sd</th>
+<th style="text-align: right;">coverage</th>
+<th style="text-align: right;">ci_width</th>
+<th style="text-align: right;">n_reps</th>
+<th style="text-align: right;">mean_first_stage_F</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;">ols_confounded</td>
+<td style="text-align: right;">0.334</td>
+<td style="text-align: right;">0.335</td>
+<td style="text-align: right;">0.021</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.092</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">nan</td>
+</tr>
+<tr>
+<td style="text-align: left;">2sls_strong(1.0)</td>
+<td style="text-align: right;">-0.001</td>
+<td style="text-align: right;">0.039</td>
+<td style="text-align: right;">0.04</td>
+<td style="text-align: right;">1</td>
+<td style="text-align: right;">0.174</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">505.145</td>
+</tr>
+<tr>
+<td style="text-align: left;">2sls_weak(0.08)</td>
+<td style="text-align: right;">-0.28</td>
+<td style="text-align: right;">2.18</td>
+<td style="text-align: right;">2.173</td>
+<td style="text-align: right;">0.98</td>
+<td style="text-align: right;">13.348</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">4.315</td>
+</tr>
+<tr>
+<td style="text-align: left;">2sls_exclusion_violated(0.3)</td>
+<td style="text-align: right;">0.298</td>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.035</td>
+<td style="text-align: right;">0</td>
+<td style="text-align: right;">0.154</td>
+<td style="text-align: right;">100</td>
+<td style="text-align: right;">505.145</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-08-policy-value">EXP-08 Policy value</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">budget</th>
+<th style="text-align: left;">policy</th>
+<th style="text-align: right;">mean</th>
+<th style="text-align: right;">std</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: left;">oracle</td>
+<td style="text-align: right;">0.645</td>
+<td style="text-align: right;">0.031</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: left;">random</td>
+<td style="text-align: right;">0.595</td>
+<td style="text-align: right;">0.032</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.643</td>
+<td style="text-align: right;">0.032</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.1</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.644</td>
+<td style="text-align: right;">0.031</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">oracle</td>
+<td style="text-align: right;">0.795</td>
+<td style="text-align: right;">0.031</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">random</td>
+<td style="text-align: right;">0.695</td>
+<td style="text-align: right;">0.034</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.79</td>
+<td style="text-align: right;">0.033</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.2</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.794</td>
+<td style="text-align: right;">0.031</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: left;">oracle</td>
+<td style="text-align: right;">0.945</td>
+<td style="text-align: right;">0.031</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: left;">random</td>
+<td style="text-align: right;">0.796</td>
+<td style="text-align: right;">0.034</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">0.933</td>
+<td style="text-align: right;">0.033</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">0.943</td>
+<td style="text-align: right;">0.032</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">oracle</td>
+<td style="text-align: right;">1.24</td>
+<td style="text-align: right;">0.034</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">random</td>
+<td style="text-align: right;">0.993</td>
+<td style="text-align: right;">0.036</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">1.185</td>
+<td style="text-align: right;">0.038</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.5</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">1.216</td>
+<td style="text-align: right;">0.037</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: left;">oracle</td>
+<td style="text-align: right;">1.345</td>
+<td style="text-align: right;">0.037</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: left;">random</td>
+<td style="text-align: right;">1.195</td>
+<td style="text-align: right;">0.036</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">1.332</td>
+<td style="text-align: right;">0.038</td>
+</tr>
+<tr>
+<td style="text-align: right;">0.7</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">1.342</td>
+<td style="text-align: right;">0.038</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">oracle</td>
+<td style="text-align: right;">1.495</td>
+<td style="text-align: right;">0.037</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">random</td>
+<td style="text-align: right;">1.495</td>
+<td style="text-align: right;">0.037</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">t_learner</td>
+<td style="text-align: right;">1.462</td>
+<td style="text-align: right;">0.042</td>
+</tr>
+<tr>
+<td style="text-align: right;">1</td>
+<td style="text-align: left;">x_learner</td>
+<td style="text-align: right;">1.482</td>
+<td style="text-align: right;">0.038</td>
+</tr>
+</tbody>
+</table>
+<h2 id="exp-08-ipw-policy-value-vs-truth">EXP-08 IPW policy value vs truth</h2>
+<table>
+<thead>
+<tr>
+<th style="text-align: right;">budget</th>
+<th style="text-align: right;">mean_true_value</th>
+<th style="text-align: right;">mean_ipw_estimate</th>
+<th style="text-align: right;">mean_abs_gap</th>
+<th style="text-align: right;">n_reps</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: right;">0.3</td>
+<td style="text-align: right;">0.943</td>
+<td style="text-align: right;">0.945</td>
+<td style="text-align: right;">0.034</td>
+<td style="text-align: right;">20</td>
+</tr>
+</tbody>
+</table>
+<h2 id="real-data-results">Real-data results</h2>
+<p><em>Not yet run: see docs/RUN_ON_YOUR_MACHINE.md.</em></p>
+<h2 id="figures">Figures</h2>
+<p><img alt="EXP-05. Bias and RMSE of the ATE estimate versus observed-confounding strength on a synthetic linear SCM (n=2000, 100 replications per point). The naive difference in means drifts away from the truth as confounding grows, while regression adjustment, IPW and AIPW stay close to zero bias." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/fig01_confounding_bias.png"></p>
+<p><em>EXP-05. Bias and RMSE of the ATE estimate versus observed-confounding strength on a synthetic linear SCM (n=2000, 100 replications per point). The naive difference in means drifts away from the truth as confounding grows, while regression adjustment, IPW and AIPW stay close to zero bias.</em></p>
+<p><img alt="EXP-06. ATE bias as a hidden confounder U gets stronger (n=2000, 100 replications). AIPW on observed covariates becomes strongly biased; the oracle AIPW that is given U stays unbiased. No estimator can fix a confounder it never sees." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/fig02_hidden_confounding.png"></p>
+<p><em>EXP-06. ATE bias as a hidden confounder U gets stronger (n=2000, 100 replications). AIPW on observed covariates becomes strongly biased; the oracle AIPW that is given U stays unbiased. No estimator can fix a confounder it never sees.</em></p>
+<p><img alt="EXP-07. ATE RMSE versus sample size on the synthetic SCM (500 to 50,000; 10 to 50 replications depending on n). RMSE decreases at roughly the 1/sqrt(n) rate for all three adjusted estimators." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/fig03_sample_size.png"></p>
+<p><em>EXP-07. ATE RMSE versus sample size on the synthetic SCM (500 to 50,000; 10 to 50 replications depending on n). RMSE decreases at roughly the 1/sqrt(n) rate for all three adjusted estimators.</em></p>
+<p><img alt="EXP-08. Exact policy value (from simulated potential outcomes) of top-k CATE policies versus budget on a randomized nonlinear SCM (n=4000, models trained on one half, evaluated on the other). Error bars are SD across replications. Learned policies track the oracle and beat random targeting at low and mid budgets." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/fig04_policy_value.png"></p>
+<p><em>EXP-08. Exact policy value (from simulated potential outcomes) of top-k CATE policies versus budget on a randomized nonlinear SCM (n=4000, models trained on one half, evaluated on the other). Error bars are SD across replications. Learned policies track the oracle and beat random targeting at low and mid budgets.</em></p>
+<p><img alt="EXP-02. CATE error (sqrt-PEHE) of S-, T- and X-learners with a gradient-boosting base model on linear and nonlinear synthetic SCMs (n=2000, 30 replications)." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/fig05_meta_learners_pehe.png"></p>
+<p><em>EXP-02. CATE error (sqrt-PEHE) of S-, T- and X-learners with a gradient-boosting base model on linear and nonlinear synthetic SCMs (n=2000, 30 replications).</em></p>
+<p><img alt="DAG with treatment T, outcome Y, confounder X1, mediator M and collider C. The engine finds backdoor paths [['T', 'X1', 'Y'], ['T', 'X2', 'X1', 'Y']] and the minimal valid adjustment set(s) [['X1']]; the mediator M and collider C are excluded because adjusting for them would block the causal path or open a spurious one." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/ev01_dag_backdoor.png"></p>
+<p><em>DAG with treatment T, outcome Y, confounder X1, mediator M and collider C. The engine finds backdoor paths [['T', 'X1', 'Y'], ['T', 'X2', 'X1', 'Y']] and the minimal valid adjustment set(s) [['X1']]; the mediator M and collider C are excluded because adjusting for them would block the causal path or open a spurious one.</em></p>
+<p><img alt="Estimated propensity score distributions for treated and control units in a synthetic observational dataset (n=3000, confounding strength 1). Good overlap means both groups have mass over the same range; thin tails signal positivity problems." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/ev02_propensity_overlap.png"></p>
+<p><em>Estimated propensity score distributions for treated and control units in a synthetic observational dataset (n=3000, confounding strength 1). Good overlap means both groups have mass over the same range; thin tails signal positivity problems.</em></p>
+<p><img alt="Absolute standardized mean differences per covariate before and after inverse-probability weighting (same dataset as the overlap plot). The dashed line marks the common 0.1 threshold; weighting should move points left of it." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/ev03_covariate_balance.png"></p>
+<p><em>Absolute standardized mean differences per covariate before and after inverse-probability weighting (same dataset as the overlap plot). The dashed line marks the common 0.1 threshold; weighting should move points left of it.</em></p>
+<p><img alt="Honest causal forest on a randomized nonlinear synthetic SCM (n=3000). Left: estimated versus true CATE (dashed line = perfect recovery). Right: distribution of estimated and true effects. True effects take two levels (step function in x0), which the forest smooths." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/ev04_cate_forest.png"></p>
+<p><em>Honest causal forest on a randomized nonlinear synthetic SCM (n=3000). Left: estimated versus true CATE (dashed line = perfect recovery). Right: distribution of estimated and true effects. True effects take two levels (step function in x0), which the forest smooths.</em></p>
+<p><img alt="Cinelli–Hazlett style contour: OLS ATE estimate (1.05) after removing the bias of a hypothetical confounder with the stated partial R² values. The red line is where the estimate reaches zero. Robustness value RV=0.38. This quantifies how much confounding would overturn the result; it does not show whether such confounding exists." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/ev05_sensitivity_contour.png"></p>
+<p><em>Cinelli–Hazlett style contour: OLS ATE estimate (1.05) after removing the bias of a hypothetical confounder with the stated partial R² values. The red line is where the estimate reaches zero. Robustness value RV=0.38. This quantifies how much confounding would overturn the result; it does not show whether such confounding exists.</em></p>
+<p><img alt="Event-study coefficients (95% cluster-robust CIs) on a synthetic panel, reference period just before treatment. With parallel trends the pre-period coefficients are near zero and the post-period coefficients show the true effect (2.0). With a built-in differential trend the pre-period coefficients drift and the Wald pre-trend test rejects." src="file:///D:/github/git%2024/CausalForge_v1.0/CausalForge/reports/benchmark_report/figures/ev06_event_study.png"></p>
+<p><em>Event-study coefficients (95% cluster-robust CIs) on a synthetic panel, reference period just before treatment. With parallel trends the pre-period coefficients are near zero and the post-period coefficients show the true effect (2.0). With a built-in differential trend the pre-period coefficients drift and the Wald pre-trend test rejects.</em></p>
+</article>
+</main>
+</body>
+</html>

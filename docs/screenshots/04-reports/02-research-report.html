@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CausalForge Research Report</title>
+<style>
+:root {
+    color-scheme: light;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: #202938;
+    background: #eef2f7;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 42px 20px;
+    line-height: 1.72;
+}
+.page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 76px;
+    background: white;
+    border: 1px solid #e1e7ef;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(25, 40, 65, .08);
+}
+.cover {
+    border-bottom: 2px solid #dce5ef;
+    padding-bottom: 28px;
+    margin-bottom: 38px;
+}
+.brand {
+    color: #315c91;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.subtitle {
+    color: #66758a;
+    font-size: 15px;
+}
+h1 {
+    color: #152b49;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 16px 0;
+}
+h2 {
+    color: #1c426c;
+    font-size: 22px;
+    margin-top: 42px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #e4eaf1;
+}
+h3 {
+    color: #294d73;
+    font-size: 18px;
+    margin-top: 28px;
+}
+h4 { color: #355675; }
+p { margin: 13px 0; }
+a { color: #245d9c; overflow-wrap: anywhere; }
+ul, ol { padding-left: 28px; }
+li { margin: 5px 0; }
+blockquote {
+    margin: 20px 0;
+    padding: 12px 20px;
+    border-left: 4px solid #6c91bd;
+    background: #f3f7fb;
+    color: #42536a;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 22px 0;
+    font-size: 13px;
+}
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #dce4ed;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #edf3f9;
+    color: #244669;
+}
+tr:nth-child(even) td { background: #fafbfd; }
+pre {
+    padding: 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    background: #172334;
+    color: #edf3fa;
+    font-size: 12px;
+    line-height: 1.55;
+}
+code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .9em;
+}
+p code, li code, td code {
+    background: #edf2f7;
+    color: #234d78;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 22px auto;
+}
+hr {
+    border: 0;
+    border-top: 1px solid #dce4ed;
+    margin: 32px 0;
+}
+@media print {
+    body { padding: 0; background: white; }
+    .page {
+        max-width: none;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 20mm;
+    }
+    h2, h3 { break-after: avoid; }
+    pre, table, img { break-inside: avoid; }
+}
+@media (max-width: 700px) {
+    body { padding: 8px; }
+    .page { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="cover">
+<div class="brand">CausalForge | Research & Engineering</div>
+<h1>CausalForge Research Report</h1>
+<div class="subtitle">Research methodology, experimental results and discussion</div>
+</header>
+<article>
+<h1 id="causalforge-a-reproducible-platform-for-causal-effect-estimation-heterogeneous-treatment-analysis-and-robust-decision-intelligence">CausalForge: A Reproducible Platform for Causal Effect Estimation, Heterogeneous Treatment Analysis and Robust Decision Intelligence</h1>
+<h2 id="abstract">Abstract</h2>
+<p>We present CausalForge, a from-scratch Python platform for ATE/ATT/CATE estimation, sensitivity
+analysis and budget-constrained policy evaluation, and a benchmark on synthetic structural causal
+models with exact ground truth. In controlled experiments, adjustment estimators remove observed
+confounding bias (|bias| ≤ 0.007 for AIPW versus up to 1.07 for the naive contrast), but all fail
+under hidden confounding (AIPW bias up to 1.62, CI coverage 0%). Robustness values and permutation
+placebo tests did not detect hidden confounding, whereas a valid negative-control outcome did.
+An honest causal forest achieved lower √PEHE (0.17–0.18) than X-learner (0.33) and T-learner
+(0.47–0.54) on a nonlinear simulator, but its heuristic pointwise intervals covered only 67–69%.
+Real-data benchmarks (IHDP, ACIC 2016, Criteo, LaLonde) are implemented but <strong>not yet executed</strong>;
+their results are reported in §6.2 once run.</p>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>Research question: how reliably can interventions' causal effects be estimated from observational
+and experimental data while quantifying uncertainty, heterogeneity and robustness? RQ1–RQ5 follow
+the project specification (estimator accuracy, heterogeneity recovery, confounding, sensitivity,
+policy construction).</p>
+<h2 id="2-related-work">2. Related work</h2>
+<p>Potential outcomes (Rubin); structural causal models and the backdoor criterion (Pearl); propensity
+scores (Rosenbaum &amp; Rubin, 1983); doubly robust estimation; meta-learners (Künzel et al., 2019);
+double/debiased ML (Chernozhukov et al., 2018); causal forests (Wager &amp; Athey, 2018; Athey,
+Tibshirani &amp; Wager, 2019); omitted-variable-bias sensitivity (Cinelli &amp; Hazlett, 2020); policy
+learning. <em>The original papers should be read and cited in full before submission; this draft
+lists them as pointers and does not paraphrase their results.</em></p>
+<h2 id="3-background">3. Background</h2>
+<p>Estimands: ITE, ATE, CATE, ATT. Identification assumptions: consistency, conditional
+exchangeability, positivity, SUTVA. A numerically accurate estimator does not imply identification.</p>
+<h2 id="4-methodology">4. Methodology</h2>
+<p>Implemented estimators and diagnostics are listed in the technical report (§6–§8). Ground truth in
+simulation is computed from structural equations. Policy value is exact in simulation and
+IPW-estimated in randomized data.</p>
+<h2 id="5-experimental-design">5. Experimental design</h2>
+<p>Synthetic SCMs (linear/nonlinear, heterogeneous, randomized/observational, hidden confounder),
+synthetic panels (DiD) and instruments (IV). Sample sizes, replications and seeds are in
+<code>artifacts/results/*.csv</code>; the full suite is <code>scripts/run_experiments.py</code> (≈2 minutes, one CPU core).</p>
+<h2 id="6-results">6. Results</h2>
+<h3 id="61-synthetic-benchmarks-measured">6.1 Synthetic benchmarks (measured)</h3>
+<ul>
+<li><strong>Confounding (EXP-05).</strong> Naive bias 0.35 / 0.63 / 0.94 / 1.07 at strengths 0.5 / 1 / 2 / 3; AIPW |bias| ≤ 0.007.</li>
+<li><strong>Sample size (EXP-07).</strong> AIPW RMSE 0.118, 0.069, 0.035, 0.024, 0.010 at n = 500, 1k, 5k, 10k, 50k (≈1/√n).</li>
+<li><strong>Meta-learners (EXP-02), √PEHE.</strong> Linear: S 0.252, X 0.325, T 0.487. Nonlinear: S 0.289, X 0.326, T 0.537.</li>
+<li><strong>DML vs AIPW (EXP-03), 30 reps.</strong> Coverage 0.90–0.97 (Monte-Carlo error ≈ ±0.05); RMSE 0.04–0.07.</li>
+<li><strong>Honest forest (EXP-03b), 20 reps.</strong> √PEHE 0.166 (randomized) and 0.180 (observational) versus X-learner 0.331/0.329 and T-learner 0.472/0.536; pointwise coverage 0.690/0.665.</li>
+<li><strong>Hidden confounding (EXP-06).</strong> AIPW (observed X) bias 0.23 / 0.83 / 1.62 at U-strength 0.5 / 1.0 / 1.5, coverage 3% / 0% / 0%; oracle AIPW with U unbiased. Mean RV rose 0.36 → 0.52. Permutation placebo rejected 5.5% / 3.5% (strength 0 / 1.5).</li>
+<li><strong>Negative control outcome (EXP-09).</strong> Rejection 12% at no hidden confounding (nominal 5%, 50 reps) and 100% at strengths 0.5 and 1.0. The NCO here is valid by construction (shares U, unaffected by T).</li>
+<li><strong>DiD (EXP-10).</strong> Parallel trends: bias −0.004, coverage 0.97, pre-trend rejection 2%. Violated trends: bias 0.90, coverage 0%, pre-trend rejection 100%.</li>
+<li><strong>IV (EXP-11).</strong> OLS bias 0.33. Strong valid IV (F≈505): bias −0.001, coverage 1.00. Weak IV (F≈4.3): RMSE 2.18. Exclusion violated: bias 0.30 (F is large, so F cannot diagnose this).</li>
+<li><strong>Policy (EXP-08).</strong> Learned top-k policies approach the oracle and beat random at budgets 0.1–0.7; IPW policy value 0.945 vs exact 0.943.</li>
+</ul>
+<h3 id="62-real-data-benchmarks">6.2 Real-data benchmarks</h3>
+<p><strong>Pending.</strong> Run <code>scripts/run_real_benchmarks.py</code> (see <code>docs/RUN_ON_YOUR_MACHINE.md</code>); results are
+written to <code>artifacts/real/</code> and appended to <code>reports/benchmark_report/benchmark_report.md</code>.
+No real-data claim is made in this draft.</p>
+<h2 id="7-discussion">7. Discussion</h2>
+<p>Adjustment fixes only measured confounding. Diagnostics differ in what they can see: RV quantifies
+fragility but rises with a biased estimate; placebo tests are blind to confounding that does not
+distort the permuted contrast; negative controls and pre-trend tests detect specific violations when
+their own assumptions hold; first-stage F detects weak instruments but not exclusion violations.
+S-learner's advantage in this simulator reflects smooth heterogeneity and shrinkage toward a
+constant effect; it should not be generalised.</p>
+<h2 id="8-limitations">8. Limitations</h2>
+<p>Low-dimensional well-specified simulators; heuristic forest intervals; PSM without SE; IPW SE
+conservative; DML-PLR weighted target; real-data and reference-library cross-checks outstanding.</p>
+<h2 id="9-conclusion">9. Conclusion</h2>
+<p>CausalForge provides a tested, reproducible implementation of estimation, heterogeneity,
+sensitivity and policy tools, and quantifies where each tool fails. Contributions: unified
+framework, DAG/adjustment engine, reproducible multi-DGP benchmark, sensitivity-method comparison,
+uncertainty-aware policy evaluation (on simulations so far).</p>
+<h2 id="references">References</h2>
+<p>Rosenbaum &amp; Rubin (1983), The central role of the propensity score in observational studies for causal effects.
+Imbens &amp; Rubin (2015), Causal Inference for Statistics, Social, and Biomedical Sciences.
+Chernozhukov et al. (2018), Double/debiased machine learning for treatment and structural parameters.
+Künzel et al. (2019), Metalearners for estimating heterogeneous treatment effects using machine learning.
+Wager &amp; Athey (2018), Estimation and inference of heterogeneous treatment effects using random forests.
+Athey, Tibshirani &amp; Wager (2019), Generalized random forests.
+Cinelli &amp; Hazlett (2020), Making sense of sensitivity: extending omitted variable bias.</p>
+</article>
+</main>
+</body>
+</html>

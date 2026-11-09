@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CausalForge Technical Report</title>
+<style>
+:root {
+    color-scheme: light;
+    font-family: Inter, "Segoe UI", Arial, sans-serif;
+    color: #202938;
+    background: #eef2f7;
+}
+* { box-sizing: border-box; }
+body {
+    margin: 0;
+    padding: 42px 20px;
+    line-height: 1.72;
+}
+.page {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 64px 76px;
+    background: white;
+    border: 1px solid #e1e7ef;
+    border-radius: 12px;
+    box-shadow: 0 12px 40px rgba(25, 40, 65, .08);
+}
+.cover {
+    border-bottom: 2px solid #dce5ef;
+    padding-bottom: 28px;
+    margin-bottom: 38px;
+}
+.brand {
+    color: #315c91;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+.subtitle {
+    color: #66758a;
+    font-size: 15px;
+}
+h1 {
+    color: #152b49;
+    font-size: 30px;
+    line-height: 1.25;
+    margin: 16px 0;
+}
+h2 {
+    color: #1c426c;
+    font-size: 22px;
+    margin-top: 42px;
+    padding-bottom: 9px;
+    border-bottom: 1px solid #e4eaf1;
+}
+h3 {
+    color: #294d73;
+    font-size: 18px;
+    margin-top: 28px;
+}
+h4 { color: #355675; }
+p { margin: 13px 0; }
+a { color: #245d9c; overflow-wrap: anywhere; }
+ul, ol { padding-left: 28px; }
+li { margin: 5px 0; }
+blockquote {
+    margin: 20px 0;
+    padding: 12px 20px;
+    border-left: 4px solid #6c91bd;
+    background: #f3f7fb;
+    color: #42536a;
+}
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 22px 0;
+    font-size: 13px;
+}
+th, td {
+    padding: 10px 12px;
+    border: 1px solid #dce4ed;
+    text-align: left;
+    vertical-align: top;
+}
+th {
+    background: #edf3f9;
+    color: #244669;
+}
+tr:nth-child(even) td { background: #fafbfd; }
+pre {
+    padding: 18px;
+    border-radius: 8px;
+    overflow-x: auto;
+    background: #172334;
+    color: #edf3fa;
+    font-size: 12px;
+    line-height: 1.55;
+}
+code {
+    font-family: Consolas, "Courier New", monospace;
+    font-size: .9em;
+}
+p code, li code, td code {
+    background: #edf2f7;
+    color: #234d78;
+    padding: 2px 5px;
+    border-radius: 4px;
+}
+img {
+    max-width: 100%;
+    height: auto;
+    display: block;
+    margin: 22px auto;
+}
+hr {
+    border: 0;
+    border-top: 1px solid #dce4ed;
+    margin: 32px 0;
+}
+@media print {
+    body { padding: 0; background: white; }
+    .page {
+        max-width: none;
+        border: 0;
+        box-shadow: none;
+        border-radius: 0;
+        padding: 20mm;
+    }
+    h2, h3 { break-after: avoid; }
+    pre, table, img { break-inside: avoid; }
+}
+@media (max-width: 700px) {
+    body { padding: 8px; }
+    .page { padding: 24px 20px; }
+}
+</style>
+</head>
+<body>
+<main class="page">
+<header class="cover">
+<div class="brand">CausalForge | Research & Engineering</div>
+<h1>CausalForge Technical Report</h1>
+<div class="subtitle">System architecture, implementation and testing</div>
+</header>
+<article>
+<h1 id="causalforge-technical-report-v100">CausalForge — Technical Report (v1.0.0)</h1>
+<h2 id="1-introduction">1. Introduction</h2>
+<p>CausalForge is a research-engineering platform for causal effect estimation, heterogeneous
+effects, sensitivity analysis and budget-constrained decisions. Core algorithms are implemented
+from scratch (NumPy/SciPy/scikit-learn/NetworkX); DoWhy/EconML are reserved for cross-checks.</p>
+<h2 id="2-requirements">2. Requirements</h2>
+<p>Python 3.12; runtime deps in <code>pyproject.toml</code>; optional extras <code>reference</code> (DoWhy, EconML,
+statsmodels), <code>tracking</code> (MLflow), <code>api</code> (FastAPI), <code>data</code> (Polars, PyArrow).</p>
+<h2 id="3-architecture">3. Architecture</h2>
+<p><code>CausalDataset</code> is the single data interface; estimators return <code>EstimateResult</code>. Layers:
+data → graphs / estimators / meta_learners / causal_ml → sensitivity → evaluation / decision →
+experiments → reporting. The API (<code>api/causalforge_api</code>) is a thin routing layer over
+<code>services/engine.py</code>; it contains no statistics.</p>
+<h2 id="4-data-architecture">4. Data architecture</h2>
+<p>Raw files are never modified or committed. <code>scripts/download_data.py</code> records HTTP status, size
+and SHA-256. Criteo is ingested in chunks (<code>criteo_stream.py</code>), validated, and analysed as
+intention-to-treat; <code>exposure</code> is post-treatment and excluded from covariates. PostgreSQL stores
+metadata only (<code>docker/init.sql</code>); a SQLite store with the same tables runs locally/tests.</p>
+<h2 id="5-causal-graph-engine">5. Causal graph engine</h2>
+<p>Cycle detection, role validation, confounder/mediator/collider detection, backdoor-path
+enumeration, the backdoor criterion implemented through d-separation in the graph with outgoing
+treatment edges removed, brute-force minimal adjustment sets (small graphs), JSON serialization.
+The engine reasons conditional on the supplied graph and cannot verify its causal correctness.</p>
+<h2 id="6-classical-estimators">6. Classical estimators</h2>
+<p>Naive, regression adjustment (bootstrap SE), propensity + diagnostics (SMD, ESS, overlap),
+IPW (Hajek/HT, explicit trimming, influence-function SE ignoring propensity estimation),
+AIPW with K-fold cross-fitting and reported clipping fraction, 1-NN PSM (ATT/ATE, caliper, no SE),
+IPW-ATT, DiD with CR1 cluster-robust SEs + event study + joint pre-trend Wald test, 2SLS with
+robust SEs and first-stage F, generic i.i.d. and cluster bootstrap.</p>
+<h2 id="7-causal-ml">7. Causal ML</h2>
+<p>S/T/X-learners; DML (partially linear) with genuine out-of-fold residuals (verified by a spy-model
+test); honest causal forest: R-loss splitting on one half of each subsample, leaf effects from the
+other half; heuristic little-bags-style variance (not the Wager–Athey CI). EconML's CausalForestDML
+is the reference for validated inference (<code>scripts/crosscheck_reference.py</code>, not yet run).</p>
+<h2 id="8-sensitivity-engine">8. Sensitivity engine</h2>
+<p>Cinelli–Hazlett robustness values and bias-adjusted estimates, permutation placebo test,
+negative-control-outcome test, hidden-confounding simulations. Measured limits: RV and placebo
+tests do not detect confounding; a <em>valid</em> negative control does (EXP-09).</p>
+<h2 id="9-api-design">9. API design</h2>
+<p>Endpoints: <code>/health, /datasets, /datasets/validate, /graphs, /graphs/{id}, /causal/identify,
+/causal/estimate, /causal/sensitivity, /experiments, /experiments/{id}(/results),
+/policies/evaluate, /reports/{id}</code>. Validation errors return HTTP 422. The service layer is
+unit-tested; the FastAPI app itself was <strong>not executed</strong> during development (FastAPI unavailable).</p>
+<h2 id="10-frontend">10. Frontend</h2>
+<p>React + TypeScript (Vite), seven pages (Overview, Datasets, Causal Graphs, Estimators,
+Experiments, Sensitivity, Reports &amp; Decisions). No placeholder statistics are rendered. Not built
+during development (no npm access).</p>
+<h2 id="11-testing">11. Testing</h2>
+<p>44 tests (unit, statistical Monte-Carlo, property-style, loader format fixtures, reproducibility).
+Statistical tests check recovery of truth, null calibration, and detection of assumption violations.
+Hypothesis-based tests, ruff and mypy are configured but were not run (not installed).</p>
+<h2 id="12-deployment">12. Deployment</h2>
+<p><code>docker/docker-compose.yml</code>: PostgreSQL, MLflow, API, frontend. Not run during development.
+CI (<code>.github/workflows/ci.yml</code>): ruff, pytest, quick synthetic experiments; no real data in CI.</p>
+<h2 id="13-limitations">13. Limitations</h2>
+<p>See <code>docs/methodology/limitations_and_validity.md</code>. Real-data benchmarks require the user's run
+(<code>docs/RUN_ON_YOUR_MACHINE.md</code>).</p>
+</article>
+</main>
+</body>
+</html>
