@@ -1,0 +1,100 @@
+"""Streaming (chunked) ingestion for the Criteo Uplift v2.1 gzip CSV.
+
+Reads in batches, validates the schema, records per-batch statistics and a SHA-256 of the
+source file, and writes partitioned output (parquet if pyarrow is installed, else csv.gz).
+`exposure` is post-treatment and is kept out of covariates by `to_causal_dataset`.
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+from pathlib import Path
+from typing import TypedDict
+
+import pandas as pd
+
+FEATURES = [f"f{i}" for i in range(12)]
+REQUIRED = FEATURES + ["treatment", "conversion", "visit", "exposure"]
+
+
+class PartManifest(TypedDict):
+    file: str
+    rows: int
+    treated_rate: float
+
+
+class IngestManifest(TypedDict):
+    source: str
+    sha256: str
+    format: str
+    rows: int
+    invalid_rows: int
+    parts: list[PartManifest]
+
+
+def sha256_file(path: str | Path, block: int = 1 << 20) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for b in iter(lambda: f.read(block), b""):
+            h.update(b)
+    return h.hexdigest()
+
+
+def ingest(
+    path: str | Path, out_dir: str | Path, chunksize: int = 500_000, fmt: str = "auto"
+) -> IngestManifest:
+    out = Path(out_dir)
+    out.mkdir(parents=True, exist_ok=True)
+    if fmt == "auto":
+        try:
+            import pyarrow  # type: ignore[import-not-found]  # noqa: F401
+
+            fmt = "parquet"
+        except ImportError:
+            fmt = "csv"
+    manifest: IngestManifest = {
+        "source": str(path),
+        "sha256": sha256_file(path),
+        "format": fmt,
+        "rows": 0,
+        "invalid_rows": 0,
+        "parts": [],
+    }
+    for k, chunk in enumerate(pd.read_csv(path, chunksize=chunksize)):
+        missing = set(REQUIRED) - set(chunk.columns)
+        if missing:
+            raise ValueError(f"missing columns: {sorted(missing)}")
+        bad = ~chunk["treatment"].isin([0, 1]) | chunk[FEATURES].isna().any(axis=1)
+        manifest["invalid_rows"] += int(bad.sum())
+        chunk = chunk.loc[~bad, REQUIRED].astype(
+            {**{f: "float32" for f in FEATURES}, **{c: "int8" for c in REQUIRED[12:]}}
+        )
+        name = out / (f"part-{k:05d}." + ("parquet" if fmt == "parquet" else "csv.gz"))
+        chunk.to_parquet(name) if fmt == "parquet" else chunk.to_csv(name, index=False)
+        manifest["rows"] += len(chunk)
+        manifest["parts"].append(
+            {
+                "file": name.name,
+                "rows": len(chunk),
+                "treated_rate": float(chunk["treatment"].mean()),
+            }
+        )
+    (out / "manifest.json").write_text(json.dumps(manifest, indent=2))
+    return manifest
+
+
+def to_causal_dataset(df: pd.DataFrame, outcome: str = "visit"):
+    """Intention-to-treat dataset: treatment = assignment; `exposure` excluded."""
+    from causalforge.data.schemas import CausalDataset
+
+    return CausalDataset(
+        X=df[FEATURES].to_numpy(float),
+        treatment=df["treatment"].to_numpy(int),
+        outcome=df[outcome].to_numpy(float),
+        feature_names=list(FEATURES),
+        dataset_name="criteo_uplift_v2.1",
+        treatment_name="treatment_assignment",
+        outcome_name=outcome,
+        metadata={"design": "ITT", "excluded_post_treatment": ["exposure"]},
+    )
