@@ -1,0 +1,202 @@
+"""Build figures (each with a written description) and the benchmark report from result CSVs."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import pandas as pd  # noqa: E402
+
+COL = {
+    "naive": "#d62728",
+    "regression_adj": "#1f77b4",
+    "ipw_hajek": "#2ca02c",
+    "aipw_linear": "#9467bd",
+    "psm_ate": "#8c564b",
+    "aipw_observed_X": "#9467bd",
+    "aipw_oracle_with_U": "#17becf",
+    "x_learner": "#ff7f0e",
+    "t_learner": "#1f77b4",
+    "s_learner": "#2ca02c",
+    "oracle": "k",
+    "random": "#7f7f7f",
+}
+
+
+def _save(fig, path: Path, caption: str, captions: list):
+    fig.tight_layout()
+    fig.savefig(path, dpi=140)
+    plt.close(fig)
+    captions.append((path.name, caption))
+
+
+def build(
+    results="artifacts/results",
+    figs="reports/benchmark_report/figures",
+    report="reports/benchmark_report/benchmark_report.md",
+) -> None:
+    R, F = Path(results), Path(figs)
+    F.mkdir(parents=True, exist_ok=True)
+    env = json.loads((R / "environment.json").read_text())
+    rd = lambda n: pd.read_csv(R / f"{n}.csv")  # noqa: E731
+    caps: list = []
+
+    d = rd("exp05_confounding")
+    fig, ax = plt.subplots(1, 2, figsize=(10, 4))
+    for est, g in d.groupby("estimator"):
+        ax[0].plot(g.confounding, g.bias, "o-", label=est, color=COL.get(str(est)))
+        ax[1].plot(g.confounding, g.rmse, "o-", label=est, color=COL.get(str(est)))
+    ax[0].set(
+        xlabel="Confounding strength (coefficient on X in assignment logit)",
+        ylabel="Bias in ATE (estimate - truth)",
+        title="Bias",
+    )
+    ax[1].set(xlabel="Confounding strength", ylabel="RMSE of ATE", title="RMSE")
+    ax[0].legend()
+    [a.grid(alpha=0.3) for a in ax]
+    n_reps = int(d.n_reps.iloc[0])
+    _save(
+        fig,
+        F / "fig01_confounding_bias.png",
+        f"EXP-05. Bias and RMSE of the ATE estimate versus observed-confounding strength on a "
+        f"synthetic linear SCM (n=2000, {n_reps} replications per point). The naive difference in "
+        "means drifts away from the truth as confounding grows, while regression adjustment, IPW "
+        "and AIPW stay close to zero bias.",
+        caps,
+    )
+
+    d = rd("exp06_hidden_confounding")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    for est, g in d.groupby("estimator"):
+        ax.plot(g.hidden_strength, g.bias, "o-", label=est, color=COL.get(str(est)))
+    ax.axhline(0, c="k", lw=0.5)
+    ax.set(
+        xlabel="Hidden confounder strength (U->T and U->Y coefficients)",
+        ylabel="Bias in ATE",
+        title="Hidden confounding",
+    )
+    ax.legend()
+    ax.grid(alpha=0.3)
+    _save(
+        fig,
+        F / "fig02_hidden_confounding.png",
+        f"EXP-06. ATE bias as a hidden confounder U gets stronger (n=2000, {int(d.n_reps.iloc[0])} "
+        "replications). AIPW on observed covariates becomes strongly biased; the oracle AIPW that "
+        "is given U stays unbiased. No estimator can fix a confounder it never sees.",
+        caps,
+    )
+
+    d = rd("exp07_sample_size")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    for est, g in d.groupby("estimator"):
+        ax.loglog(g.n, g.rmse, "o-", label=est, color=COL.get(str(est)))
+    ax.set(
+        xlabel="Sample size n (log scale)",
+        ylabel="ATE RMSE (log scale)",
+        title="Sample-size scaling",
+    )
+    ax.legend()
+    ax.grid(alpha=0.3, which="both")
+    _save(
+        fig,
+        F / "fig03_sample_size.png",
+        "EXP-07. ATE RMSE versus sample size on the synthetic SCM (500 to 50,000; 10 to 50 "
+        "replications depending on n). RMSE decreases at roughly the 1/sqrt(n) rate for all "
+        "three adjusted estimators.",
+        caps,
+    )
+
+    d = rd("exp08_policy_value")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    for pol, g in d.groupby("policy"):
+        ax.errorbar(
+            g.budget,
+            g["mean"],
+            yerr=g["std"],
+            marker="o",
+            capsize=2,
+            label=pol,
+            color=COL.get(str(pol)),
+        )
+    ax.set(
+        xlabel="Treatment budget (fraction of population treated)",
+        ylabel="True policy value E[Y(pi)] (held-out half)",
+        title="Policy value vs budget",
+    )
+    ax.legend()
+    ax.grid(alpha=0.3)
+    _save(
+        fig,
+        F / "fig04_policy_value.png",
+        "EXP-08. Exact policy value (from simulated potential outcomes) of top-k CATE policies "
+        "versus budget on a randomized nonlinear SCM (n=4000, models trained on one half, "
+        "evaluated on the other). Error bars are SD across replications. Learned policies track "
+        "the oracle and beat random targeting at low and mid budgets.",
+        caps,
+    )
+
+    d = rd("exp02_meta_learners")
+    fig, ax = plt.subplots(figsize=(6, 4))
+    piv = d.pivot(index="scenario", columns="learner", values="pehe")
+    piv.plot.bar(ax=ax, color=[COL[c] for c in piv.columns], rot=0)
+    ax.set(ylabel="sqrt-PEHE (lower is better)", xlabel="Scenario", title="Meta-learners")
+    ax.grid(alpha=0.3, axis="y")
+    _save(
+        fig,
+        F / "fig05_meta_learners_pehe.png",
+        f"EXP-02. CATE error (sqrt-PEHE) of S-, T- and X-learners with a gradient-boosting base "
+        f"model on linear and nonlinear synthetic SCMs (n=2000, {int(d.n_reps.iloc[0])} replications).",
+        caps,
+    )
+
+    def md_table(df, cols=None):
+        df = df[cols] if cols else df
+        return (
+            df.round(3).to_markdown(index=False)
+            if hasattr(df, "to_markdown")
+            else "```\n" + df.round(3).to_string(index=False) + "\n```"
+        )
+
+    lines = [
+        "# CausalForge benchmark report (auto-generated)\n",
+        f"Generated from `artifacts/results/*.csv` by `scripts/generate_report.py`. "
+        f"Environment: Python {env['python']}, numpy {env['numpy']}, scikit-learn "
+        f"{env['sklearn']}. Total runtime {env['total_runtime_s']:.0f}s. "
+        "All data are **synthetic SCMs with exact ground truth**; no real dataset "
+        "(IHDP, ACIC, Criteo, LaLonde) has been run yet.\n",
+    ]
+    for name, title in [
+        ("exp01_classical", "EXP-01 Classical estimators (n=1000)"),
+        ("exp02_meta_learners", "EXP-02 Meta-learners (n=2000)"),
+        ("exp03_dml_vs_aipw", "EXP-03 (partial) DML-PLR vs cross-fitted AIPW"),
+        ("exp04_randomized_vs_observational", "EXP-04 Randomized vs observational"),
+        ("exp05_confounding", "EXP-05 Confounding sweep"),
+        ("exp06_hidden_confounding", "EXP-06 Hidden confounding"),
+        ("exp06_robustness_value", "EXP-06 Mean robustness values (OLS, 30 reps)"),
+        ("exp06b_placebo", "EXP-06b Permutation placebo test"),
+        ("exp07_sample_size", "EXP-07 Sample size"),
+        ("exp03b_forest", "EXP-03b Honest causal forest vs T/X-learner"),
+        ("exp09_negative_control", "EXP-09 Negative-control outcome test"),
+        ("exp10_did", "EXP-10 Difference-in-differences (synthetic panel)"),
+        ("exp11_iv", "EXP-11 Instrumental variables (synthetic)"),
+        ("exp08_policy_value", "EXP-08 Policy value"),
+        ("exp08_ipw_check", "EXP-08 IPW policy value vs truth"),
+    ]:
+        lines += [f"## {title}\n", md_table(rd(name)), ""]
+    from causalforge.reporting import evidence
+
+    caps += evidence.build(figs)
+    real = Path("artifacts/real")
+    if (real / "summary.json").exists():
+        lines += ["## Real-data results\n"]
+        for f in sorted(real.glob("*.csv")):
+            if "qini" not in f.name:
+                lines += [f"### {f.stem}\n", md_table(pd.read_csv(f)), ""]
+    else:
+        lines += ["## Real-data results\n", "_Not yet run: see docs/RUN_ON_YOUR_MACHINE.md._\n"]
+    lines += ["## Figures\n"] + [f"![{c}](figures/{n})\n\n*{c}*\n" for n, c in caps]
+    Path(report).write_text("\n".join(lines))

@@ -1,0 +1,199 @@
+"""Evidence figures built from live computations; each figure has a written description."""
+
+from __future__ import annotations
+
+import json
+from pathlib import Path
+
+import matplotlib
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt  # noqa: E402
+import numpy as np  # noqa: E402
+
+from causalforge.causal_ml.causal_forest import HonestCausalForest  # noqa: E402
+from causalforge.estimators.difference_in_differences import event_study  # noqa: E402
+from causalforge.estimators.propensity import estimate_propensity, standardized_mean_difference  # noqa: E402
+from causalforge.graphs.dag import CausalDAG  # noqa: E402
+from causalforge.graphs.visualization import plot_dag  # noqa: E402
+from causalforge.sensitivity.partial_r2 import sensitivity_report  # noqa: E402
+from causalforge.synthetic.generators import make_scm  # noqa: E402
+from causalforge.synthetic.panel_iv import make_panel  # noqa: E402
+
+
+def build(out="reports/benchmark_report/figures") -> list[tuple[str, str]]:
+    F = Path(out)
+    F.mkdir(parents=True, exist_ok=True)
+    caps: list[tuple[str, str]] = []
+
+    def save(fig, name, cap):
+        fig.tight_layout()
+        fig.savefig(F / name, dpi=140)
+        plt.close(fig)
+        caps.append((name, cap))
+
+    # 1 DAG + backdoor
+    g = CausalDAG()
+    for n, r in [
+        ("X1", "confounder"),
+        ("X2", "covariate"),
+        ("T", "treatment"),
+        ("M", "mediator"),
+        ("Y", "outcome"),
+        ("C", "collider"),
+    ]:
+        g.add_variable(n, r)
+    for a, b in [
+        ("X1", "T"),
+        ("X1", "Y"),
+        ("X2", "T"),
+        ("X2", "X1"),
+        ("T", "M"),
+        ("M", "Y"),
+        ("T", "C"),
+        ("Y", "C"),
+    ]:
+        g.add_causal_edge(a, b)
+    sets = g.adjustment_sets("T", "Y")
+    plot_dag(
+        g,
+        str(F / "ev01_dag_backdoor.png"),
+        "Example DAG (adjustment set outlined)",
+        highlight=sets[0],
+        pos={"X2": (0, 1.5), "X1": (2, 2), "T": (1, 0), "Y": (3, 0), "M": (2, -1), "C": (2, 0.6)},
+    )
+    caps.append(
+        (
+            "ev01_dag_backdoor.png",
+            f"DAG with treatment T, outcome Y, confounder X1, mediator M and collider C. The engine "
+            f"finds backdoor paths {g.backdoor_paths('T', 'Y')} and the minimal valid adjustment "
+            f"set(s) {[sorted(s) for s in sets]}; the mediator M and collider C are excluded "
+            "because adjusting for them would block the causal path or open a spurious one.",
+        )
+    )
+
+    ds = make_scm(3000, 11)
+    e = estimate_propensity(ds.X, ds.treatment)[1]
+    # 2 overlap
+    fig, ax = plt.subplots(figsize=(6, 4))
+    ax.hist(e[ds.treatment == 1], 40, alpha=0.6, label="treated", density=True)
+    ax.hist(e[ds.treatment == 0], 40, alpha=0.6, label="control", density=True)
+    ax.set(xlabel="Estimated propensity score e(X)", ylabel="Density", title="Propensity overlap")
+    ax.legend()
+    save(
+        fig,
+        "ev02_propensity_overlap.png",
+        "Estimated propensity score distributions for treated and control units in a synthetic "
+        "observational dataset (n=3000, confounding strength 1). Good overlap means both groups "
+        "have mass over the same range; thin tails signal positivity problems.",
+    )
+    # 3 balance
+    w = np.where(ds.treatment == 1, 1 / e, 1 / (1 - e))
+    s0, s1 = (
+        standardized_mean_difference(ds.X, ds.treatment),
+        standardized_mean_difference(ds.X, ds.treatment, w),
+    )
+    fig, ax = plt.subplots(figsize=(5.5, 4))
+    y = np.arange(len(s0))
+    ax.scatter(np.abs(s0), y, label="unweighted")
+    ax.scatter(np.abs(s1), y, label="IPW-weighted")
+    ax.axvline(0.1, ls="--", c="k", lw=0.7)
+    ax.set(
+        yticks=y,
+        yticklabels=ds.feature_names,
+        xlabel="|Standardized mean difference|",
+        title="Covariate balance (Love plot)",
+    )
+    ax.legend()
+    save(
+        fig,
+        "ev03_covariate_balance.png",
+        "Absolute standardized mean differences per covariate before and after inverse-probability "
+        "weighting (same dataset as the overlap plot). The dashed line marks the common 0.1 "
+        "threshold; weighting should move points left of it.",
+    )
+    # 4 CATE
+    cate_ds = make_scm(3000, 12, randomized=True, nonlinear=True)
+    assert cate_ds.true_cate is not None, "Synthetic SCM must provide true_cate for CATE evidence."
+    f = HonestCausalForest(seed=0).fit(
+        cate_ds.X, cate_ds.treatment, cate_ds.outcome, cate_ds.propensity
+    )
+    p = f.predict_cate(cate_ds.X)
+    fig, ax = plt.subplots(1, 2, figsize=(9, 4))
+    ax[0].scatter(cate_ds.true_cate, p, s=4, alpha=0.4)
+    lim = [cate_ds.true_cate.min(), cate_ds.true_cate.max()]
+    ax[0].plot(lim, lim, "k--", lw=0.8)
+    ax[0].set(
+        xlabel="True CATE (from structural equations)",
+        ylabel="Forest estimate",
+        title="CATE recovery",
+    )
+    ax[1].hist(p, 40, alpha=0.6, label="estimated")
+    ax[1].hist(cate_ds.true_cate, 40, alpha=0.5, label="true")
+    ax[1].set(xlabel="Treatment effect", ylabel="Count", title="CATE distribution")
+    ax[1].legend()
+    save(
+        fig,
+        "ev04_cate_forest.png",
+        "Honest causal forest on a randomized nonlinear synthetic SCM (n=3000). Left: estimated "
+        "versus true CATE (dashed line = perfect recovery). Right: distribution of estimated and "
+        "true effects. True effects take two levels (step function in x0), which the forest smooths.",
+    )
+    # 5 sensitivity contour
+    rep = sensitivity_report(
+        make_scm(3000, 13).X, make_scm(3000, 13).treatment, make_scm(3000, 13).outcome
+    )
+    r2dz = np.linspace(0, 0.5, 60)
+    r2yz = np.linspace(0, 0.5, 60)
+    A, B = np.meshgrid(r2dz, r2yz)
+    adj = rep["estimate"] - np.sign(rep["estimate"]) * np.sqrt(B * A / (1 - A)) * rep[
+        "se"
+    ] * np.sqrt(rep["dof"])
+    fig, ax = plt.subplots(figsize=(5.5, 4.5))
+    cs = ax.contour(A, B, adj, 12)
+    ax.clabel(cs, fontsize=7)
+    ax.contour(A, B, adj, [0], colors="r", linewidths=2)
+    ax.set(
+        xlabel="Partial R² of confounder with treatment",
+        ylabel="Partial R² of confounder with outcome",
+        title="Adjusted ATE under hypothetical confounder",
+    )
+    save(
+        fig,
+        "ev05_sensitivity_contour.png",
+        f"Cinelli–Hazlett style contour: OLS ATE estimate ({rep['estimate']:.2f}) after removing the "
+        f"bias of a hypothetical confounder with the stated partial R² values. The red line is where "
+        f"the estimate reaches zero. Robustness value RV={rep['rv_q']:.2f}. This quantifies how much "
+        "confounding would overturn the result; it does not show whether such confounding exists.",
+    )
+    # 6 event study
+    fig, ax = plt.subplots(figsize=(6, 4))
+    for v, lab in ((0.0, "parallel trends"), (0.4, "violated trends")):
+        pn = make_panel(n_units=800, seed=5, trend_violation=v)
+        tab, o = event_study(pn["unit"], pn["group"], pn["period"], pn["y"], pn["treat_start"] - 1)
+        ax.errorbar(
+            tab.period + (0.08 if v else 0),
+            tab.coef,
+            yerr=1.96 * tab.se,
+            marker="o",
+            capsize=2,
+            label=f"{lab} (pre-trend p={o['pretrend_wald_p']:.3g})",
+        )
+    ax.axvline(pn["treat_start"] - 0.5, ls="--", c="k", lw=0.7)
+    ax.axhline(0, c="k", lw=0.5)
+    ax.set(
+        xlabel="Period (treatment starts at dashed line)",
+        ylabel="Treated-minus-control gap vs reference period",
+        title="Event study",
+    )
+    ax.legend(fontsize=8)
+    save(
+        fig,
+        "ev06_event_study.png",
+        "Event-study coefficients (95% cluster-robust CIs) on a synthetic panel, reference period "
+        "just before treatment. With parallel trends the pre-period coefficients are near zero and "
+        "the post-period coefficients show the true effect (2.0). With a built-in differential "
+        "trend the pre-period coefficients drift and the Wald pre-trend test rejects.",
+    )
+    (F / "evidence_captions.json").write_text(json.dumps(caps, indent=2))
+    return caps
