@@ -1,0 +1,10 @@
+{
+  "python": "3.12.10",
+  "os": "Windows-11-10.0.26200-SP0",
+  "numpy": "2.5.4",
+  "scipy": "1.18.1",
+  "sklearn": "1.9.1",
+  "pandas": "3.1.1",
+  "quick": false,
+  "total_runtime_s": 205.6338928999994
+}

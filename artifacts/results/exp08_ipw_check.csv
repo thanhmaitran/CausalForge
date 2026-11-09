@@ -1,0 +1,2 @@
+budget,mean_true_value,mean_ipw_estimate,mean_abs_gap,n_reps
+0.3,0.9425995359278817,0.9453473042633782,0.0340356003758623,20
