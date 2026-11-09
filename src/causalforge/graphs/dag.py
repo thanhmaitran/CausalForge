@@ -1,0 +1,122 @@
+"""Causal DAG engine: validation, roles, backdoor paths and adjustment sets."""
+
+from __future__ import annotations
+
+import json
+from itertools import combinations
+
+import networkx as nx
+
+ROLES = {
+    "treatment",
+    "outcome",
+    "confounder",
+    "mediator",
+    "collider",
+    "covariate",
+    "instrument",
+    "unobserved",
+}
+
+
+class CausalDAG:
+    """Structural checks on a researcher-supplied graph.
+
+    The engine cannot verify that edges are causally correct; it only reasons
+    *conditional on the graph provided*.
+    """
+
+    def __init__(self) -> None:
+        self.graph: nx.DiGraph = nx.DiGraph()
+
+    def add_variable(self, name: str, role: str = "covariate") -> None:
+        if role not in ROLES:
+            raise ValueError(f"unknown role {role!r}; expected one of {sorted(ROLES)}")
+        self.graph.add_node(name, role=role)
+
+    def add_causal_edge(self, cause: str, effect: str) -> None:
+        for v in (cause, effect):
+            if v not in self.graph:
+                self.graph.add_node(v, role="covariate")
+        self.graph.add_edge(cause, effect)
+
+    def validate(self) -> bool:
+        if not nx.is_directed_acyclic_graph(self.graph):
+            raise ValueError("Causal graph contains a directed cycle")
+        return True
+
+    def ancestors(self, v: str) -> set[str]:
+        return nx.ancestors(self.graph, v)
+
+    def descendants(self, v: str) -> set[str]:
+        return nx.descendants(self.graph, v)
+
+    def parents(self, v: str) -> list[str]:
+        return list(self.graph.predecessors(v))
+
+    def confounder_candidates(self, t: str, y: str) -> set[str]:
+        """Common ancestors of T and Y that are not descendants of T."""
+        return (self.ancestors(t) & self.ancestors(y)) - self.descendants(t)
+
+    def mediators(self, t: str, y: str) -> set[str]:
+        return self.descendants(t) & self.ancestors(y)
+
+    def colliders(self) -> dict[str, list[str]]:
+        return {v: self.parents(v) for v in self.graph if self.graph.in_degree(v) >= 2}
+
+    def backdoor_paths(self, t: str, y: str) -> list[list[str]]:
+        """Undirected paths T..Y whose first edge points INTO T."""
+        self.validate()
+        und = self.graph.to_undirected()
+        pa = set(self.parents(t))
+        return [p for p in nx.all_simple_paths(und, t, y) if len(p) > 1 and p[1] in pa]
+
+    def is_valid_adjustment_set(self, z: set[str], t: str, y: str) -> bool:
+        """Pearl's backdoor criterion: Z has no descendant of T and blocks all backdoor paths."""
+        self.validate()
+        z = set(z)
+        if t in z or y in z:
+            return False
+        if z & self.descendants(t):
+            return False
+        g = self.graph.copy()
+        g.remove_edges_from(list(g.out_edges(t)))
+        return nx.is_d_separator(g, {t}, {y}, z)
+
+    def adjustment_sets(
+        self, t: str, y: str, max_nodes: int = 16, minimal_only: bool = True
+    ) -> list[set[str]]:
+        """Brute-force enumeration of valid backdoor adjustment sets (small graphs)."""
+        self.validate()
+        cand = sorted(set(self.graph) - {t, y} - self.descendants(t))
+        if len(cand) > max_nodes:
+            raise ValueError(f"{len(cand)} candidate nodes exceeds brute-force limit {max_nodes}")
+        valid: list[set[str]] = []
+        for k in range(len(cand) + 1):
+            for z in combinations(cand, k):
+                zs = set(z)
+                if minimal_only and any(v < zs for v in valid):
+                    continue
+                if self.is_valid_adjustment_set(zs, t, y):
+                    valid.append(zs)
+        return valid
+
+    def to_json(self) -> str:
+        return json.dumps(
+            {
+                "nodes": [
+                    {"name": n, "role": d.get("role")} for n, d in self.graph.nodes(data=True)
+                ],
+                "edges": [list(e) for e in self.graph.edges],
+            }
+        )
+
+    @classmethod
+    def from_json(cls, s: str) -> CausalDAG:
+        obj = json.loads(s)
+        dag = cls()
+        for n in obj["nodes"]:
+            dag.add_variable(n["name"], n.get("role") or "covariate")
+        for a, b in obj["edges"]:
+            dag.add_causal_edge(a, b)
+        return dag
