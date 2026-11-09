@@ -1,0 +1,264 @@
+"""Benchmarks on REAL datasets (IHDP, ACIC 2016, LaLonde, Criteo). Requires downloaded data.
+
+Everything is computed from the files; nothing is hard-coded. Each function returns DataFrames
+and the CLI (scripts/run_real_benchmarks.py) writes them to artifacts/real/.
+"""
+
+from __future__ import annotations
+
+import time
+from pathlib import Path
+from typing import Protocol
+
+import numpy as np
+import pandas as pd
+from scipy.stats import norm
+
+from causalforge.causal_ml.causal_forest import HonestCausalForest
+from causalforge.causal_ml.dml import dml_plr
+from causalforge.data.loaders.benchmarks import (
+    lalonde_dataset,
+    load_acic,
+    load_ihdp,
+    read_lalonde_frame,
+)
+from causalforge.decision.policies import ipw_policy_value, top_k_policy
+from causalforge.estimators.difference_in_differences import did_2x2
+from causalforge.estimators.doubly_robust import aipw_ate
+from causalforge.estimators.matching import psm
+from causalforge.estimators.regression import naive_ate, regression_adjustment
+from causalforge.estimators.weighting import ipw_ate, ipw_att
+from causalforge.evaluation.metrics import pehe
+from causalforge.evaluation.uplift import auuc, qini_curve
+from causalforge.experiments.runner import _run, _summ
+from causalforge.meta_learners.learners import SLearner, TLearner, XLearner
+
+
+class CATEEstimator(Protocol):
+    """Common interface for estimators that predict conditional treatment effects."""
+
+    def fit(
+        self,
+        X: np.ndarray,
+        t: np.ndarray,
+        y: np.ndarray,
+    ) -> CATEEstimator: ...
+
+    def predict_cate(self, X: np.ndarray) -> np.ndarray: ...
+
+
+ATE_ESTS = {
+    "naive": naive_ate,
+    "regression_adj": regression_adjustment,
+    "ipw_hajek": ipw_ate,
+    "aipw_linear": aipw_ate,
+    "dml_plr_gb": dml_plr,
+    "psm_ate": lambda ds: psm(ds, "ATE"),
+}
+
+
+def _learners() -> dict[str, CATEEstimator]:
+    return {
+        "s_learner": SLearner(),
+        "t_learner": TLearner(),
+        "x_learner": XLearner(),
+        "honest_forest": HonestCausalForest(),
+    }
+
+
+def _cate_rows(ds, test=None, tag=""):
+    rows = []
+    for name, m in _learners().items():
+        t0 = time.perf_counter()
+        m.fit(ds.X, ds.treatment, ds.outcome)
+        p = m.predict_cate(ds.X)
+        row = dict(
+            learner=name,
+            pehe_in=pehe(p, ds.true_cate),
+            ate_err_in=abs(p.mean() - ds.true_ate),
+            runtime_s=time.perf_counter() - t0,
+        )
+        if test is not None:
+            pt = m.predict_cate(test.X)
+            row |= dict(
+                pehe_out=pehe(pt, test.true_cate), ate_err_out=abs(pt.mean() - test.true_ate)
+            )
+        rows.append(row | {"tag": tag})
+    return rows
+
+
+def run_ihdp(train: str, test: str | None = None, reps: int = 100):
+    ate_rows, cate_rows = [], []
+    z = np.load(train)
+    reps = min(reps, z["x"].shape[2] if z["x"].ndim == 3 else 1)
+    test_path = Path(test) if test is not None else None
+    zt = np.load(test_path) if test_path is not None and test_path.exists() else None
+    for r in range(reps):
+        ds = load_ihdp(train, r)
+        te = load_ihdp(test_path, r) if test_path is not None and zt is not None else None
+        for name, est in ATE_ESTS.items():
+            ate_rows.append({"estimator": name} | _run(est, ds))
+        cate_rows += _cate_rows(ds, te, tag=f"rep{r}")
+    ate = _summ(ate_rows, ["estimator"])
+    cate = (
+        pd.DataFrame(cate_rows)
+        .drop(columns="tag")
+        .groupby("learner", sort=False)
+        .agg(["mean", "std"])
+        .reset_index()
+    )
+    cate.columns = ["_".join(c).strip("_") for c in cate.columns]
+    return ate, cate
+
+
+def run_acic(root: str, max_files: int = 30):
+    root_p = Path(root)
+    xs = sorted(root_p.rglob("x.csv"))
+    files = sorted(root_p.rglob("zymu_*.csv"))
+    if not xs or not files:
+        raise FileNotFoundError(
+            f"No x.csv / zymu_*.csv found under {root}; check the Zenodo "
+            "archive layout and extract it first."
+        )
+    pick = (
+        files
+        if len(files) <= max_files
+        else [files[i] for i in np.linspace(0, len(files) - 1, max_files).astype(int)]
+    )
+    ate_rows, cate_rows = [], []
+    for f in pick:
+        ds = load_acic(xs[0], f)
+        for name in ["naive", "regression_adj", "ipw_hajek", "aipw_linear"]:
+            ate_rows.append({"estimator": name, "file": f.name} | _run(ATE_ESTS[name], ds))
+        cate_rows += [r | {"file": f.name} for r in _cate_rows(ds)]
+    ate = _summ(ate_rows, ["estimator"])
+    cate = (
+        pd.DataFrame(cate_rows)
+        .groupby("learner", sort=False)[["pehe_in", "ate_err_in", "runtime_s"]]
+        .agg(["mean", "std"])
+        .reset_index()
+    )
+    cate.columns = ["_".join(c).strip("_") for c in cate.columns]
+    return ate, cate, len(pick)
+
+
+def run_lalonde(experimental_csv: str, comparison_csv: str | None = None):
+    """Experimental benchmark vs observational estimators for the ATT."""
+    exp = read_lalonde_frame(experimental_csv)
+    d = lalonde_dataset(exp, "nsw_experimental")
+    n1, n0 = (d.treatment == 1).sum(), (d.treatment == 0).sum()
+    base = naive_ate(d)
+    base_ci = base.ci if base.ci is not None else (np.nan, np.nan)
+
+    rows = [
+        dict(
+            sample="experimental",
+            estimator="diff_in_means",
+            estimate=base.estimate,
+            se=base.se,
+            lo=base_ci[0],
+            hi=base_ci[1],
+            n_treated=int(n1),
+            n_control=int(n0),
+        )
+    ]
+    bench = base.estimate
+    if comparison_csv:
+        comp = read_lalonde_frame(comparison_csv)
+        obs = pd.concat([exp[exp.treat == 1], comp[comp.treat == 0]], ignore_index=True)
+        o = lalonde_dataset(obs, "nsw_treated_plus_comparison")
+        for name, r in {
+            "naive": naive_ate(o),
+            "regression_adj_att": regression_adjustment(o, estimand="ATT"),
+            "ipw_att": ipw_att(o),
+            "psm_att": psm(o, "ATT", caliper=0.5),
+        }.items():
+            rows.append(
+                dict(
+                    sample="observational",
+                    estimator=name,
+                    estimate=r.estimate,
+                    se=r.se,
+                    lo=(r.ci or (np.nan,))[0],
+                    hi=(r.ci or (np.nan, np.nan))[1],
+                    n_treated=int((o.treatment == 1).sum()),
+                    n_control=int((o.treatment == 0).sum()),
+                )
+            )
+        # DiD: pre = re75, post = re78, on the observational sample
+        n = len(obs)
+        unit = np.tile(np.arange(n), 2)
+        y = np.concatenate([obs["re75"], obs["re78"]])
+        post = np.repeat([0, 1], n)
+        r = did_2x2(unit, np.tile(obs["treat"].to_numpy(), 2), post, y)
+        did_ci = r.ci if r.ci is not None else (np.nan, np.nan)
+
+        rows.append(
+            dict(
+                sample="observational",
+                estimator="did_re75_re78",
+                estimate=r.estimate,
+                se=r.se,
+                lo=did_ci[0],
+                hi=did_ci[1],
+                n_treated=int(n1),
+                n_control=int(len(obs) - n1),
+            )
+        )
+    out = pd.DataFrame(rows)
+    out["abs_gap_to_experimental"] = (out["estimate"] - bench).abs()
+    return out
+
+
+def run_criteo(path: str, nrows: int = 1_000_000, outcome: str = "visit", seed: int = 0):
+    """ITT analysis of assignment. Randomization is taken from the dataset design; we do NOT
+    claim known per-row propensities beyond the observed assignment share."""
+    df = pd.read_csv(path, nrows=nrows)
+    feats = [f"f{i}" for i in range(12)]
+    t, y = df["treatment"].to_numpy(int), df[outcome].to_numpy(float)
+    p = t.mean()
+    d1, d0 = y[t == 1], y[t == 0]
+    ate = d1.mean() - d0.mean()
+    se = np.sqrt(d1.var(ddof=1) / len(d1) + d0.var(ddof=1) / len(d0))
+    itt = pd.DataFrame(
+        [
+            dict(
+                rows=len(df),
+                treated_share=p,
+                outcome=outcome,
+                itt=ate,
+                se=se,
+                lo=ate - norm.ppf(0.975) * se,
+                hi=ate + norm.ppf(0.975) * se,
+                mean_control=d0.mean(),
+                exposure_among_treated=df.loc[t == 1, "exposure"].mean(),
+            )
+        ]
+    )
+    rng = np.random.default_rng(seed)
+    idx = rng.permutation(len(df))
+    cut = int(0.5 * len(df))
+    tr, te = idx[:cut][:200_000], idx[cut:]
+    X = df[feats].to_numpy(float)
+    rows, qrows, prow = [], [], []
+    criteo_learners: dict[str, CATEEstimator] = {
+        "t_learner": TLearner(),
+        "x_learner": XLearner(),
+    }
+    for name, m in criteo_learners.items():
+        m.fit(X[tr], t[tr], y[tr])
+        s = m.predict_cate(X[te])
+        rows.append(dict(model=name, auuc=auuc(s, t[te], y[te])))
+        f, q = qini_curve(s, t[te], y[te])
+        qrows += [dict(model=name, fraction=a, qini=b) for a, b in zip(f, q)]
+        for b in (0.1, 0.2, 0.3, 0.5):
+            pi = top_k_policy(s, b, require_positive=False)
+            prow.append(
+                dict(
+                    model=name,
+                    budget=b,
+                    ipw_value=ipw_policy_value(t[te], y[te], pi, np.full(len(te), p)),
+                )
+            )
+    rows.append(dict(model="random", auuc=auuc(rng.random(len(te)), t[te], y[te])))
+    return itt, pd.DataFrame(rows), pd.DataFrame(qrows), pd.DataFrame(prow)
